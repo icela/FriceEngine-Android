@@ -10,8 +10,11 @@ import org.frice.game.obj.AbstractObject
 import org.frice.game.obj.FObject
 import org.frice.game.obj.PhysicalObject
 import org.frice.game.obj.button.FText
+import org.frice.game.obj.sub.ShapeObject
 import org.frice.game.resource.FResource
 import org.frice.game.resource.graphics.ColorResource
+import org.frice.game.utils.graphics.shape.FOval
+import org.frice.game.utils.graphics.shape.FRectangle
 import org.frice.game.utils.time.FTimeListener
 import org.frice.game.utils.time.FTimer
 import java.util.*
@@ -45,7 +48,7 @@ open class Game : AppCompatActivity() {
 	/**
 	 * background resource (don't setBackground, please use `setBack()` instead.)
 	 */
-	var back: FResource = ColorResource.LIGHT_GRAY
+	var back: FResource = ColorResource.BLACK
 	var debug = true
 
 	/**
@@ -132,8 +135,26 @@ open class Game : AppCompatActivity() {
 							(o.x + o.width / 2).toFloat(), (o.y + o.height / 2).toFloat())
 					else canvas.rotate(o.rotate.toFloat(), o.x.toFloat(), o.y.toFloat())
 					when (o) {
-						is FObject.ImageOwner -> {
-							canvas.drawBitmap()
+						is FObject.ImageOwner ->
+							canvas.drawBitmap(o.image, o.x.toFloat(), o.y.toFloat(), p)
+						is ShapeObject -> {
+							p.color = o.getResource().color
+							when (o.collideBox) {
+								is FRectangle -> canvas.drawRect(
+										o.x.toFloat(),
+										o.y.toFloat(),
+										o.width.toFloat(),
+										o.height.toFloat(),
+										p
+								)
+//								is FOval -> canvas.drawOval(
+//										o.x.toFloat(),
+//										o.y.toFloat(),
+//										o.width.toFloat(),
+//										o.height.toFloat(),
+//										p
+//								)
+							}
 						}
 					}
 				}

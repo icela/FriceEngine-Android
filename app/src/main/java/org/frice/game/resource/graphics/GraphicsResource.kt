@@ -1,20 +1,24 @@
 package org.frice.game.resource.graphics
 
-import org.frice.game.Game
+import android.graphics.Bitmap
+import android.graphics.Color
 import org.frice.game.resource.FResource
-import org.frice.game.resource.image.ImageResource
 import org.frice.game.utils.misc.forceRun
-import org.frice.game.utils.misc.loop
-import java.awt.Color
-import java.awt.image.BufferedImage
-import java.util.*
 
 /**
  * Created by ice1000 on 2016/8/14.
  * @author ice1000
  * @since v0.1.1
  */
-class ColorResource(val color: Color) : FResource {
+class ColorResource(color: Int) : FResource {
+	val color: Int
+	init {
+		this.color = Color.rgb(
+				(color shr 16) % 0xFF,
+				(color shr 8) % 0xFF,
+				(color) % 0xFF
+		)
+	}
 
 	/**
 	 * 颜表立。。。
@@ -24,8 +28,6 @@ class ColorResource(val color: Color) : FResource {
 		@JvmField val GREEN = ColorResource(Color.GREEN)
 		@JvmField val BLUE = ColorResource(Color.BLUE)
 		@JvmField val GRAY = ColorResource(Color.GRAY)
-		@JvmField val DARK_GRAY = ColorResource(Color.DARK_GRAY)
-		@JvmField val LIGHT_GRAY = ColorResource(Color.LIGHT_GRAY)
 		@JvmField val WHITE = ColorResource(Color.WHITE)
 		@JvmField val RED = ColorResource(Color.RED)
 		@JvmField val BLACK = ColorResource(Color.BLACK)
@@ -33,9 +35,9 @@ class ColorResource(val color: Color) : FResource {
 		@JvmField val MAGENTA = ColorResource(Color.MAGENTA)
 		@JvmField val YELLOW = ColorResource(Color.YELLOW)
 		@JvmField val SHIT_YELLOW = ColorResource(0x633516)
-		@JvmField val ORANGE = ColorResource(Color.ORANGE)
-		@JvmField val PINK = ColorResource(Color.PINK)
-		@JvmField val COLORLESS = ColorResource(Color(0, 0, 0, 0))
+		@JvmField val ORANGE = ColorResource(0xcc7832)
+		@JvmField val PINK = ColorResource(0xC770CC)
+		@JvmField val COLORLESS = ColorResource(Color.argb(0, 0, 0, 0))
 		@JvmField val 小埋色 = ColorResource(0xFFAC2B)
 		@JvmField val 基佬紫 = ColorResource(0x781895)
 		@JvmField val 吾王蓝 = BLUE
@@ -63,10 +65,6 @@ class ColorResource(val color: Color) : FResource {
 		@JvmField val 赤羽业 = 西木野真姬
 	}
 
-	constructor(color: Int) : this(Color(color))
-
-	constructor(color: String) : this(Color.getColor(color))
-
 	/**
 	 * not for users and developers.
 	 * this should only be called by the engine itself.
@@ -76,8 +74,7 @@ class ColorResource(val color: Color) : FResource {
 	override fun equals(other: Any?): Boolean {
 		if (this === other) return true
 		if (other == null || other !is ColorResource) return false
-		if (color.rgb == other.color.rgb && color.alpha == other.color.alpha) return true
-		return false
+		return color == other.color
 	}
 
 	override fun hashCode() = color.hashCode()
@@ -92,18 +89,18 @@ class ColorResource(val color: Color) : FResource {
  */
 class FunctionResource(color: ColorResource, val f: (Double) -> Double, width: Int, height: Int) : FResource {
 
-	private val image: BufferedImage
+	private val image: Bitmap
 
 	init {
-		image = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
+		image = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
 		var lastTime = f(0.0)
 		var thisTime: Double
 		(0..width step 1).forEach { x ->
 			thisTime = f(x.toDouble())
-			forceRun { image.setRGB(x.toInt(), thisTime.toInt(), color.color.rgb) }
+			forceRun { image.setPixel(x.toInt(), thisTime.toInt(), color.color) }
 			if (Math.abs(thisTime - lastTime) >= 1.0) forceRun {
 				(Math.min(thisTime, lastTime).toInt()..Math.max(thisTime, lastTime).toInt()).forEach { i ->
-					image.setRGB(x, i, color.color.rgb)
+					image.setPixel(x, i, color.color)
 				}
 			}
 			lastTime = thisTime
@@ -118,78 +115,78 @@ class FunctionResource(color: ColorResource, val f: (Double) -> Double, width: I
  * something like circle.
  */
 class CurveResource(color: ColorResource, val f: (Double) -> List<Double>, width: Int, height: Int) : FResource {
-	private val image: BufferedImage
+	private val image: Bitmap
 
 	init {
-		image = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
+		image = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
 		(0..width step 1).forEach { x ->
 			f(x.toDouble()).forEach { y ->
-				forceRun { image.setRGB(x, y.toInt(), color.color.rgb) }
+				forceRun { image.setPixel(x, y.toInt(), color.color) }
 			}
 		}
 	}
 
 	override fun getResource() = image
 }
-
-/**
- * Particle effects
- * Created by ice1000 on 2016/8/17.
- *
- * @author ice1000
- * @since v0.3.2
- */
-class ParticleResource(val game: Game,
-                       var width: Int,
-                       var height: Int,
-                       val back: FResource,
-                       var fore: ColorResource,
-                       var percentage: Double) : FResource {
-	constructor(game: Game, x: Int, y: Int, back: ColorResource, fore: ColorResource) :
-	this(game, x, y, back, fore, 0.5)
-
-	constructor(game: Game, x: Int, y: Int, percentage: Double) :
-	this(game, x, y, ColorResource.COLORLESS, ColorResource.BLACK, percentage)
-
-	constructor(game: Game, x: Int, y: Int) : this(game, x, y, 0.5)
-
-	/**
-	 * particle effects as an bitmap
-	 */
-	private val image = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB_PRE)
-	private val random = Random(Random().nextLong())
-
-	private fun drawBackground() {
-		val g = image.graphics
-		when (back) {
-			is ColorResource -> {
-				g.fillRect(0, 0, width, height)
-				g.color = back.color
-			}
-			is ImageResource -> g.drawImage(back.bitmap, 0, 0, width, height, game)
-		}
-	}
-
-	init {
-		drawBackground()
-		loop((image.width * image.height * percentage).toInt()) {
-			image.setRGB(random.nextInt(width), random.nextInt(height), fore.color.rgb)
-		}
-	}
-
-	override fun getResource() = image.apply {
-		//		FLog.debug("Ah!? Ah!")
-		var cache1: Int
-		var cache2: Int
-		loop((image.width * image.height * percentage).toInt()) {
-			cache1 = random.nextInt(width)
-			cache2 = random.nextInt(height)
-			image.setRGB(random.nextInt(width), random.nextInt(height), fore.color.rgb)
-			image.setRGB(cache1, cache2, when (back) {
-				is ColorResource -> back.color.rgb
-				is ImageResource -> back.bitmap.getRGB(cache1, cache2)
-				else -> ColorResource.COLORLESS.color.rgb
-			})
-		}
-	}
-}
+//
+///**
+// * Particle effects
+// * Created by ice1000 on 2016/8/17.
+// *
+// * @author ice1000
+// * @since v0.3.2
+// */
+//class ParticleResource(val game: Game,
+//                       var width: Int,
+//                       var height: Int,
+//                       val back: FResource,
+//                       var fore: ColorResource,
+//                       var percentage: Double) : FResource {
+//	constructor(game: Game, x: Int, y: Int, back: ColorResource, fore: ColorResource) :
+//	this(game, x, y, back, fore, 0.5)
+//
+//	constructor(game: Game, x: Int, y: Int, percentage: Double) :
+//	this(game, x, y, ColorResource.WHITE, ColorResource.BLACK, percentage)
+//
+//	constructor(game: Game, x: Int, y: Int) : this(game, x, y, 0.5)
+//
+//	/**
+//	 * particle effects as an bitmap
+//	 */
+//	private val image = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+//	private val random = Random(Random().nextLong())
+//
+//	private fun drawBackground() {
+//		val g = image.graphics
+//		when (back) {
+//			is ColorResource -> {
+//				g.fillRect(0, 0, width, height)
+//				g.color = back.color
+//			}
+//			is ImageResource -> g.drawImage(back.bitmap, 0, 0, width, height, game)
+//		}
+//	}
+//
+//	init {
+//		drawBackground()
+//		loop((image.width * image.height * percentage).toInt()) {
+//			image.setPixel(random.nextInt(width), random.nextInt(height), fore.color)
+//		}
+//	}
+//
+//	override fun getResource() = image.apply {
+//		//		FLog.debug("Ah!? Ah!")
+//		var cache1: Int
+//		var cache2: Int
+//		loop((image.width * image.height * percentage).toInt()) {
+//			cache1 = random.nextInt(width)
+//			cache2 = random.nextInt(height)
+//			image.setPixel(random.nextInt(width), random.nextInt(height), fore.color)
+//			image.setPixel(cache1, cache2, when (back) {
+//				is ColorResource -> back.color.rgb
+//				is ImageResource -> back.bitmap.getRGB(cache1, cache2)
+//				else -> ColorResource.COLORLESS.color
+//			})
+//		}
+//	}
+//}
