@@ -1,16 +1,11 @@
 package org.frice.game.resource.image
 
+import android.graphics.Bitmap
 import org.frice.game.Game
 import org.frice.game.resource.FResource
 import org.frice.game.utils.message.log.FLog
 import org.frice.game.utils.time.FTimeListener
 import org.frice.game.utils.web.WebUtils
-import java.awt.Image
-import java.awt.Rectangle
-import java.awt.image.BufferedImage
-import java.io.File
-import java.net.URL
-import javax.imageio.ImageIO
 
 /**
  * Created by ice1000 on 2016/8/13.
@@ -20,41 +15,48 @@ import javax.imageio.ImageIO
 abstract class ImageResource : FResource {
 
 	companion object {
-		@JvmStatic fun create(image: BufferedImage) = object : ImageResource() {
-			override var image = image
+		@JvmStatic fun create(image: Bitmap) = object : ImageResource() {
+			override var bitmap = image
 		}
 
-		@JvmStatic fun fromImage(image: BufferedImage): ImageResource = create(image)
-		@JvmStatic fun fromFile(file: File) = FileImageResource(file)
+		@JvmStatic fun fromBitmap(bitmap: Bitmap): ImageResource = create(bitmap)
 		@JvmStatic fun fromPath(path: String) = FileImageResource(path)
-		@JvmStatic fun fromWeb(url: String) = fromURL(URL(url))
-		@JvmStatic fun fromURL(url: URL) = WebImageResource(url)
-		@JvmStatic fun empty() = create(BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB))
+		@JvmStatic fun fromWeb(url: String) = WebImageResource(url)
+		@JvmStatic fun empty() = create(Bitmap.createBitmap(0, 0, Bitmap.Config.ARGB_8888))
 	}
 
-	abstract var image: BufferedImage
+	abstract var bitmap: Bitmap
 
-	override fun getResource() = image
+	override fun getResource() = bitmap
 
-	fun scaled(x: Double, y: Double) = fromImage(image.getScaledInstance(
-			(image.width * x).toInt(), (image.height * y).toInt(), Image.SCALE_DEFAULT) as BufferedImage)
+	fun scaled(x: Double, y: Double) = fromBitmap(Bitmap.createScaledBitmap(
+			bitmap,
+			(x * bitmap.width).toInt(),
+			(y * bitmap.height).toInt(),
+			true
+	))
 
-	fun part(x: Int, y: Int, width: Int, height: Int) = fromImage(image.getSubimage(x, y, width, height))
+	fun part(x: Int, y: Int, width: Int, height: Int) = fromBitmap(Bitmap.createBitmap(
+			bitmap,
+			x,
+			y,
+			width,
+			height
+	))
 
 }
 
 
 /**
- * create an image from a part of another image
+ * create an bitmap from a part of another bitmap
  *
  * Created by ice1000 on 2016/8/15.
  * @author ice1000
  * @since v0.2.3
  */
 class PartImageResource(origin: ImageResource, x: Int, y: Int, width: Int, height: Int) : ImageResource() {
-	constructor(origin: ImageResource, part: Rectangle) : this(origin, part.x, part.y, part.width, part.height)
 
-	override var image = origin.image.getSubimage(x, y, width, height)
+	override var bitmap = Bitmap.createBitmap(origin.bitmap, x, y, width, height)
 }
 
 
@@ -65,11 +67,8 @@ class PartImageResource(origin: ImageResource, x: Int, y: Int, width: Int, heigh
  * @author ice1000
  * @since v0.2.2
  */
-class WebImageResource(url: URL) : ImageResource() {
-
-	constructor(url: String) : this(URL(url))
-
-	override var image = WebUtils.readImage(url)
+class WebImageResource(url: String) : ImageResource() {
+	override var bitmap = WebUtils.readImage(url)
 
 }
 
@@ -89,8 +88,8 @@ class FrameImageResource(val game: Game, val list: MutableList<ImageResource>, d
 	private var ended = false
 	var loop = true
 
-	override var image: BufferedImage
-		get() = if (loop || ended) list.getImage(counter).image else list.last().image
+	override var bitmap: Bitmap
+		get() = if (loop || ended) list.getImage(counter).bitmap else list.last().bitmap
 		set(value) {
 			list.add(ImageResource.create(value))
 		}
@@ -116,10 +115,7 @@ class FrameImageResource(val game: Game, val list: MutableList<ImageResource>, d
  * @author ice1000
  * @since v0.1
  */
-class FileImageResource(file: File) : ImageResource() {
-
-	constructor(path: String) : this(File(path))
-
-	override var image = ImageIO.read(file)!!
+class FileImageResource(path: String) : ImageResource() {
+	override var bitmap = WebUtils.readImage(path)
 
 }

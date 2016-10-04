@@ -106,9 +106,6 @@ abstract class Game() : JFrame(), Runnable {
 		if (b is FButton && b.containsPoint(e.event.x, e.event.y)) b onClick e
 	}
 
-	protected open fun onInit() = Unit
-	protected open fun onLastInit() = Unit
-	protected open fun onRefresh() = Unit
 	protected open fun onClick(e: OnClickEvent) = Unit
 	protected open fun onMouse(e: OnMouseEvent) = Unit
 	protected open fun onExit() {
@@ -127,7 +124,6 @@ abstract class Game() : JFrame(), Runnable {
 		paused = false
 	}
 
-	protected open fun customDraw(g: Graphics2D) = Unit
 
 	/**
 	 * for kotlin only
@@ -276,25 +272,6 @@ abstract class Game() : JFrame(), Runnable {
 	infix fun removeTimeListener(listener: FTimeListener) = timeListenerDeleteBuffer.add(listener)
 
 
-	/**
-	 * do the delete and add work, to prevent Exceptions
-	 */
-	private fun processBuffer() {
-		objects.addAll(objectAddBuffer)
-		objects.removeAll(objectDeleteBuffer)
-		objectDeleteBuffer.clear()
-		objectAddBuffer.clear()
-
-		timeListeners.addAll(timeListenerAddBuffer)
-		timeListeners.removeAll(timeListenerDeleteBuffer)
-		timeListenerDeleteBuffer.clear()
-		timeListenerAddBuffer.clear()
-
-		texts.addAll(textAddBuffer)
-		texts.removeAll(textDeleteBuffer)
-		textDeleteBuffer.clear()
-		textAddBuffer.clear()
-	}
 
 	protected fun drawEverything(getBGG: () -> Graphics2D) {
 		processBuffer()
@@ -307,10 +284,6 @@ abstract class Game() : JFrame(), Runnable {
 		}
 
 		objects.forEach { o ->
-			val bgg = getBGG()
-			bgg.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
-			if (o is PhysicalObject) bgg.rotate(o.rotate, o.x + o.width / 2, o.y + o.height / 2)
-			else bgg.rotate(o.rotate, o.x, o.y)
 			when (o) {
 				is FObject.ImageOwner -> bgg.drawImage(o.image, o.x.toInt(), o.y.toInt(), this)
 				is ShapeObject -> {
@@ -400,7 +373,7 @@ abstract class Game() : JFrame(), Runnable {
 	/**
 	 * get a screenShot.
 	 *
-	 * @return screen cut as an image
+	 * @return screen cut as an bitmap
 	 */
 	fun getScreenCut() = ImageResource.create(stableBuffer)
 
@@ -431,7 +404,7 @@ abstract class Game() : JFrame(), Runnable {
 
 	private fun drawBackground(back: FResource, g: Graphics2D) {
 		when (back) {
-			is ImageResource -> g.paint = TexturePaint(back.image, Rectangle(0, 0, width, height))
+			is ImageResource -> g.paint = TexturePaint(back.bitmap, Rectangle(0, 0, width, height))
 			is ColorResource -> g.color = back.color
 			else -> throw FatalError("Unable to draw background")
 		}

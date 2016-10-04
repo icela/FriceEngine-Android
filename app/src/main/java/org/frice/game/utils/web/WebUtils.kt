@@ -1,7 +1,7 @@
 package org.frice.game.utils.web
 
+import android.graphics.BitmapFactory
 import java.net.URL
-import javax.imageio.ImageIO
 
 /**
  * Created by ice1000 on 2016/9/3.
@@ -16,8 +16,7 @@ object WebUtils {
 	@JvmStatic fun readBytes(url: URL) = url.readBytes()
 	@JvmStatic fun readBytes(url: String) = readBytes(URL(url))
 
-	@JvmStatic fun readImage(url: URL) = ImageIO.read(url)!!
-	@JvmStatic fun readImage(url: String) = readImage(URL(url))
+	@JvmStatic fun readImage(url: String) = BitmapFactory.decodeFile(url)!!
 
 	@JvmStatic fun readImages(url: String) = HTMLUtils.findTag(readText(url), "img")
 	@JvmStatic fun readImages(url: URL) = HTMLUtils.findTag(readText(url), "img")

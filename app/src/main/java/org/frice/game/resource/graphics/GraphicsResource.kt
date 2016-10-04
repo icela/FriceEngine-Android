@@ -154,7 +154,7 @@ class ParticleResource(val game: Game,
 	constructor(game: Game, x: Int, y: Int) : this(game, x, y, 0.5)
 
 	/**
-	 * particle effects as an image
+	 * particle effects as an bitmap
 	 */
 	private val image = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB_PRE)
 	private val random = Random(Random().nextLong())
@@ -166,7 +166,7 @@ class ParticleResource(val game: Game,
 				g.fillRect(0, 0, width, height)
 				g.color = back.color
 			}
-			is ImageResource -> g.drawImage(back.image, 0, 0, width, height, game)
+			is ImageResource -> g.drawImage(back.bitmap, 0, 0, width, height, game)
 		}
 	}
 
@@ -187,7 +187,7 @@ class ParticleResource(val game: Game,
 			image.setRGB(random.nextInt(width), random.nextInt(height), fore.color.rgb)
 			image.setRGB(cache1, cache2, when (back) {
 				is ColorResource -> back.color.rgb
-				is ImageResource -> back.image.getRGB(cache1, cache2)
+				is ImageResource -> back.bitmap.getRGB(cache1, cache2)
 				else -> ColorResource.COLORLESS.color.rgb
 			})
 		}

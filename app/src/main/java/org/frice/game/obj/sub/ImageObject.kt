@@ -37,20 +37,20 @@ open class ImageObject(var res: ImageResource, override var id: Int,
 	}
 
 	override val width: Double
-		get() = res.image.width.toDouble()
+		get() = res.bitmap.width.toDouble()
 	override val height: Double
-		get() = res.image.height.toDouble()
+		get() = res.bitmap.height.toDouble()
 
-	override val collideBox = FRectangle(res.image.width, res.image.height)
+	override val collideBox = FRectangle(res.bitmap.width, res.bitmap.height)
 	override var died = false
 
 	override fun scale(x: Double, y: Double) {
-		res.image = res.image.getScaledInstance((res.image.width * x / 1000.0).toInt(),
-				(res.image.height * y / 1000.0).toInt(), Image.SCALE_DEFAULT) as BufferedImage
+		res.bitmap = res.bitmap.getScaledInstance((res.bitmap.width * x / 1000.0).toInt(),
+				(res.bitmap.height * y / 1000.0).toInt(), Image.SCALE_DEFAULT) as BufferedImage
 	}
 
 	override val image: BufferedImage
-		get() = res.image
+		get() = res.bitmap
 
 	override fun equals(other: Any?): Boolean {
 		if (this === other) return true

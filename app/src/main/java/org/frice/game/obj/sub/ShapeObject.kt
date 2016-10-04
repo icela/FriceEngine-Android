@@ -9,7 +9,7 @@ import org.frice.game.utils.graphics.shape.FShape
 
 /**
  * an object with a utils and a shape, used to create an simple object quickly
- * instead of load from an image file.
+ * instead of load from an bitmap file.
  *
  * Created by ice1000 on 2016/8/14.
  * @author ice1000

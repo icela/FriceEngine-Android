@@ -66,17 +66,17 @@ class FunctionEffect(res: FunctionResource, override var x: Double, override var
 	this(FunctionResource(ColorResource.BLUE, { x -> function.call(x) }, width, height), x, y)
 
 	override val width: Double
-		get() = res.image.width.toDouble()
+		get() = res.bitmap.width.toDouble()
 	override val height: Double
-		get() = res.image.height.toDouble()
+		get() = res.bitmap.height.toDouble()
 
 	override fun getResource() = ImageResource.create(image)
 
 	override val image: BufferedImage
-		get() = res.image
+		get() = res.bitmap
 
 	override fun scale(x: Double, y: Double) {
-		res.image = image.getScaledInstance((image.width * x / 1000.0).toInt(),
+		res.bitmap = image.getScaledInstance((image.width * x / 1000.0).toInt(),
 				(image.height * y / 1000.0).toInt(), Image.SCALE_DEFAULT) as BufferedImage
 	}
 
@@ -106,10 +106,10 @@ class CurveEffect(res: CurveResource, override var x: Double, override var y: Do
 	override fun getResource() = ImageResource.create(image)
 
 	override val image: BufferedImage
-		get() = res.image
+		get() = res.bitmap
 
 	override fun scale(x: Double, y: Double) {
-		res.image = image.getScaledInstance((image.width * x / 1000.0).toInt(),
+		res.bitmap = image.getScaledInstance((image.width * x / 1000.0).toInt(),
 				(image.height * y / 1000.0).toInt(), Image.SCALE_DEFAULT) as BufferedImage
 	}
 
