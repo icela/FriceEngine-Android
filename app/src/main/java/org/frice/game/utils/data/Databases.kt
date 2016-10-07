@@ -1,6 +1,6 @@
 package org.frice.game.utils.data
 
-import org.frice.game.utils.message.error.FatalError
+import org.frice.android.utils.message.error.FatalError
 import org.frice.game.utils.misc.forceGet
 import org.frice.game.utils.misc.forceLoop
 import org.frice.game.utils.misc.forceRun
@@ -32,6 +32,7 @@ interface Database {
  * @author ice1000
  * @since v0.4.1
  */
+@Deprecated("use String extension instead of using database directly")
 class Preference(private val file: File) : Database {
 
 	constructor(path: String) : this(File(path))
@@ -67,6 +68,7 @@ class Preference(private val file: File) : Database {
  * @author ice1000
  * @since 0.2.2
  */
+@Deprecated("use String extension instead of using database directly")
 class XMLPreference constructor(val file: File) : Database {
 	constructor(path: String) : this(File(path))
 

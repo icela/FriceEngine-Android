@@ -39,7 +39,7 @@ open class FTimer(protected val time: Int, times: Int) {
 	constructor(time: Int) : this(time, -1)
 
 	var times = times
-		private set
+		protected set
 	private var start = System.currentTimeMillis()
 
 	fun ended(): Boolean = if (System.currentTimeMillis() - start > time && times != 0) {

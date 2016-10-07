@@ -1,14 +1,12 @@
 package org.frice.game.obj.button
 
-import org.frice.game.event.OnClickEvent
-import org.frice.game.event.OnMouseEvent
+import android.graphics.Bitmap
+import org.frice.android.resource.graphics.ColorResource
+import org.frice.android.resource.image.ImageResource
+import org.frice.android.utils.graphics.utils.ColorUtils.darker
 import org.frice.game.obj.AbstractObject
 import org.frice.game.obj.FContainer
 import org.frice.game.obj.FObject
-import org.frice.game.resource.graphics.ColorResource
-import org.frice.game.resource.image.ImageResource
-import java.awt.Font
-import java.awt.image.BufferedImage
 
 /**
  * Created by ice1000 on 2016/8/18.
@@ -19,12 +17,7 @@ import java.awt.image.BufferedImage
 interface FButton : FContainer, AbstractObject {
 	var onClickListener: OnClickListener?
 
-	infix fun onClick(e: OnClickEvent) = onClickListener?.onClick(e)
-
-	/**
-	 * @return true means pressed
-	 */
-	infix fun onMouse(e: OnMouseEvent) = (e.type() == OnMouseEvent.MOUSE_PRESSED)
+	fun onClick() = onClickListener?.onClick()
 
 	/**
 	 * Created by ice1000 on 2016/8/19.
@@ -32,7 +25,7 @@ interface FButton : FContainer, AbstractObject {
 	 * @since v0.4
 	 */
 	interface OnClickListener {
-		fun onClick(e: OnClickEvent)
+		fun onClick()
 	}
 
 	/**
@@ -41,10 +34,9 @@ interface FButton : FContainer, AbstractObject {
 	 * @since v0.4
 	 */
 	interface OnMouseListener {
-		fun onMouse(e: OnMouseEvent)
+		fun onMouse()
 	}
 }
-
 
 /**
  * Created by ice1000 on 2016/9/3 0003.
@@ -65,13 +57,9 @@ class ImageButton(val imageNormal: ImageResource, val imagePressed: ImageResourc
 
 	private var bool = false
 
-	override val image: BufferedImage
-		get () = if (bool) imagePressed.bitmap else imageNormal.bitmap
-
-	override fun onMouse(e: OnMouseEvent): Boolean {
-		bool = super<FButton>.onMouse(e)
-		return bool
-	}
+	override val image: Bitmap
+		get () = if (bool) imagePressed.bitmap
+		else imageNormal.bitmap
 }
 
 /**
@@ -80,28 +68,20 @@ class ImageButton(val imageNormal: ImageResource, val imagePressed: ImageResourc
  * @author ice1000
  * @since v0.3.3
  */
-open class SimpleButton(var colorResource: ColorResource,
-                        override var text: String, override var font: Font,
-                        override var x: Double, override var y: Double,
-                        override var width: Double, override var height: Double) : FButton, FText() {
-
-	constructor(text: String, font: Font, x: Double, y: Double,
-	            width: Double, height: Double) : this(ColorResource.GRAY, text, font, x, y, width, height)
-
-	constructor(text: String, font: Int, x: Double, y: Double, width: Double, height: Double) :
-	this(text, Font(Font.MONOSPACED, Font.BOLD, font), x, y, width, height)
+open class SimpleButton(
+		var colorResource: ColorResource,
+		override var text: String,
+		override var x: Double, override var y: Double,
+		override var width: Double, override var height: Double) : FButton, FText() {
 
 	constructor(text: String, x: Double, y: Double, width: Double, height: Double) :
-	this(text, Font(Font.MONOSPACED, Font.BOLD, 16), x, y, width, height)
+	this(ColorResource.IntelliJ_IDEA黑, text, x, y, width, height)
 
 	private var bool = false
 
 	override var onClickListener: FButton.OnClickListener? = null
 
-	override fun getColor() = if (bool) ColorResource(colorResource.color.darker()) else colorResource
-
-	override fun onMouse(e: OnMouseEvent): Boolean {
-		bool = super.onMouse(e)
-		return bool
-	}
+	override fun getColor() =
+			if (bool) ColorResource(colorResource.color.darker())
+			else colorResource
 }

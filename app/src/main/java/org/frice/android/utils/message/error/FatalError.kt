@@ -1,6 +1,6 @@
-package org.frice.game.utils.message.error
+package org.frice.android.utils.message.error
 
-import org.frice.game.utils.message.log.FLog
+import org.frice.android.utils.message.log.FLog
 
 /**
  * Created by ice1000 on 2016/8/14.

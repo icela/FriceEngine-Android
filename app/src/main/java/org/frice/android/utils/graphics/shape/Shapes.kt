@@ -1,6 +1,5 @@
-package org.frice.game.utils.graphics.shape
+package org.frice.android.utils.graphics.shape
 
-import java.awt.geom.Rectangle2D
 import java.util.*
 
 /**
@@ -47,7 +46,6 @@ data class FPoint(var x: Int, var y: Int)
  * @since v0.1.1
  */
 open class FRectangle(override var width: Int, override var height: Int) : FShape {
-	constructor(rect: Rectangle2D) : this(rect.width.toInt(), rect.height.toInt())
 
 	override fun equals(other: Any?): Boolean {
 		if (this === other) return true

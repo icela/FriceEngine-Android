@@ -1,9 +1,9 @@
-package org.frice.game.resource.image
+package org.frice.android.resource.image
 
 import android.graphics.Bitmap
-import org.frice.game.Game
+import org.frice.android.utils.message.log.FLog
+import org.frice.android.Game
 import org.frice.game.resource.FResource
-import org.frice.game.utils.message.log.FLog
 import org.frice.game.utils.time.FTimeListener
 import org.frice.game.utils.web.WebUtils
 

@@ -6,15 +6,17 @@ import android.graphics.Paint
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
+import org.frice.android.resource.graphics.ColorResource
+import org.frice.android.utils.graphics.shape.FRectangle
+import org.frice.android.utils.message.log.FLog
 import org.frice.game.obj.AbstractObject
 import org.frice.game.obj.FObject
 import org.frice.game.obj.PhysicalObject
 import org.frice.game.obj.button.FText
 import org.frice.game.obj.sub.ShapeObject
 import org.frice.game.resource.FResource
-import org.frice.game.resource.graphics.ColorResource
-import org.frice.game.utils.graphics.shape.FOval
-import org.frice.game.utils.graphics.shape.FRectangle
+import org.frice.game.utils.misc.forceRun
+import org.frice.game.utils.misc.loopIf
 import org.frice.game.utils.time.FTimeListener
 import org.frice.game.utils.time.FTimer
 import java.util.*
@@ -73,20 +75,140 @@ open class Game : AppCompatActivity() {
 
 	private val refresh = FTimer(30)
 
-	lateinit var canvas: FriceCanvas
+	private var fpsCounter = 0
+	private var fpsDisplay = 0
+	private lateinit var fpsTimer: FTimer
+
+	private lateinit var canvas: FriceCanvas
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		canvas = FriceCanvas(this)
+		fpsTimer = FTimer(1000)
+		setContentView(canvas)
 		onInit()
+		FLog.v("Engine start!")
 		thread {
-
+			loopIf(!paused && !stopped && refresh.ended()) {
+				forceRun {
+					onRefresh()
+					timeListeners.forEach { it.check() }
+					canvas.invalidate()
+					++fpsCounter
+					if (fpsTimer.ended()) {
+						fpsDisplay = fpsCounter
+						fpsCounter = 0
+					}
+				}
+			}
 		}
 	}
 
 	protected open fun onInit() = Unit
 	protected open fun onRefresh() = Unit
 	protected open fun customDraw(canvas: Canvas) = Unit
+
+	/**
+	 * adds objects
+	 *
+	 * @param objs as a collection
+	 */
+	infix fun addObjects(objs: Collection<AbstractObject>) = addObjects(objs.toTypedArray())
+
+	/**
+	 * adds objects
+	 *
+	 * @param objs as an array
+	 */
+	infix fun addObjects(objs: Array<AbstractObject>) = objs.forEach { o -> addObject(o) }
+
+	/**
+	 * adds an object to game, to be shown on game window.
+	 */
+	infix fun addObject(obj: AbstractObject) {
+		if (obj is FText) textAddBuffer.add(obj)
+		else objectAddBuffer.add(obj)
+	}
+
+	/**
+	 * clears all objects.
+	 * this method is safe.
+	 */
+	fun clearObjects() {
+		objectDeleteBuffer.addAll(objects)
+		textDeleteBuffer.addAll(texts)
+	}
+
+
+	/**
+	 * removes objects.
+	 * this method is safe.
+	 *
+	 * @param objs will remove objects which is equal to them, as an array.
+	 */
+	infix fun removeObjects(objs: Array<AbstractObject>) = objs.forEach { o -> objectDeleteBuffer.add(o) }
+
+	/**
+	 * removes objects.
+	 * this method is safe.
+	 *
+	 * @param objs will remove objects which is equal to them, as a collection.
+	 */
+	infix fun removeObjects(objs: Collection<AbstractObject>) = removeObjects(objs.toTypedArray())
+
+	/**
+	 * removes single object.
+	 * this method is safe.
+	 *
+	 * @param obj will remove objects which is equal to it.
+	 */
+	infix fun removeObject(obj: AbstractObject) {
+		if (obj is FText) textDeleteBuffer.add(obj)
+		else objectDeleteBuffer.add(obj)
+	}
+
+	/**
+	 * adds a auto-executed time listener
+	 * you must add or it won't work.
+	 */
+	infix fun addTimeListener(listener: FTimeListener) = timeListenerAddBuffer.add(listener)
+
+	/**
+	 * adds an array of auto-executed time listeners
+	 */
+	infix fun addTimeListeners(listeners: Array<FTimeListener>) = listeners.forEach { l -> addTimeListener(l) }
+
+	/**
+	 * adds a collection of auto-executed time listeners
+	 */
+	infix fun addTimeListeners(listeners: Collection<FTimeListener>) = addTimeListeners(listeners.toTypedArray())
+
+	/**
+	 * removes all auto-executed time listeners
+	 */
+	fun clearTimeListeners() = timeListenerDeleteBuffer.addAll(timeListeners)
+
+	/**
+	 * removes auto-executed time listeners specified in the given array.
+	 *
+	 * @param listeners the array
+	 */
+	infix fun removeTimeListeners(listeners: Array<FTimeListener>) =
+			listeners.forEach { l -> removeTimeListener(l) }
+
+	/**
+	 * auto-execute time listeners which are equal to the given collection.
+	 *
+	 * @param listeners the collection
+	 */
+	infix fun removeTimeListeners(listeners: Collection<FTimeListener>) = removeTimeListeners(listeners.toTypedArray())
+
+	/**
+	 * removes specified listener
+	 *
+	 * @param listener the listener
+	 */
+	infix fun removeTimeListener(listener: FTimeListener) = timeListenerDeleteBuffer.add(listener)
 
 
 	/**

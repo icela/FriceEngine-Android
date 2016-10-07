@@ -1,4 +1,4 @@
-package org.frice.game.resource.graphics
+package org.frice.android.resource.graphics
 
 import android.graphics.Bitmap
 import android.graphics.Color

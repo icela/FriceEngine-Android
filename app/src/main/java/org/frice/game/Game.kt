@@ -62,39 +62,10 @@ abstract class Game() : JFrame(), Runnable {
 	private val bg: Graphics2D
 		get() = buffer.graphics as Graphics2D
 
-	private var fpsCounter = 0
-	private var fpsDisplay = 0
-	private val fpsTimer: FTimer
-
-	/**
-	 * represent the mouse as an object
-	 */
-	@JvmField val mouse = object : AbstractObject {
-		override var x: Double
-			get() = mousePosition.getX()
-			set(value) = Unit
-
-		override var y: Double
-			get() = mousePosition.getY()
-			set(value) = Unit
-
-		override var rotate = 0.0
-	}
 
 	init {
-		layout = BorderLayout()
-		// set icon
 		iconImage = ImageIO.read(javaClass.getResourceAsStream("/icon.png"))
 
-		/// to prevent this engine from the call#cking NPE!!
-		panel = GamePanel()
-		this.add(panel, BorderLayout.CENTER)
-		bounds = BIG_SQUARE
-		fpsTimer = FTimer(1000)
-		onInit()
-		buffer = BufferedImage(panel.width, panel.height, BufferedImage.TYPE_INT_ARGB)
-		stableBuffer = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
-		isVisible = true
 		Thread(this).start()
 	}
 
@@ -115,161 +86,6 @@ abstract class Game() : JFrame(), Runnable {
 			System.exit(0)
 		else return
 	}
-
-	protected open fun onLoseFocus(e: OnWindowEvent?) {
-		paused = true
-	}
-
-	protected open fun onFocus(e: OnWindowEvent?) {
-		paused = false
-	}
-
-
-	/**
-	 * for kotlin only
-	 * add keyboard listeners with lambda
-	 */
-	fun addKeyListener(
-			typed: (KeyEvent) -> Unit = { },
-			pressed: (KeyEvent) -> Unit = { },
-			released: (KeyEvent) -> Unit = { }) {
-		addKeyListener(object : KeyListener {
-			override fun keyPressed(e: KeyEvent?) = pressed(e!!)
-			override fun keyReleased(e: KeyEvent?) = released(e!!)
-			override fun keyTyped(e: KeyEvent?) = typed(e!!)
-		})
-	}
-
-	fun listenKeyPressed(key: OnKeyEvent) = listenKeyPressed({ e -> key.execute(e) })
-	infix fun listenKeyPressed(key: (KeyEvent) -> Unit) =
-			addKeyListener({ key.invoke(it) }, { key.invoke(it) }, { key.invoke(it) })
-
-	fun addKeyTypedEvent(keyCode: Int, key: OnKeyEvent) = addKeyTypedEvent(keyCode, { e -> key.execute(e) })
-	fun addKeyTypedEvent(keyCode: Int, key: (KeyEvent) -> Unit) = addKeyListener(typed = { e ->
-		if (e.keyCode == keyCode) key.invoke(e)
-	})
-
-	fun addKeyPressedEvent(keyCode: Int, key: OnKeyEvent) =
-			addKeyPressedEvent(keyCode, { e -> key.execute(e) })
-
-	fun addKeyPressedEvent(keyCode: Int, key: (KeyEvent) -> Unit) = addKeyListener(pressed = { e ->
-		if (e.keyCode == keyCode) key.invoke(e)
-	})
-
-	fun addKeyReleasedEvent(keyCode: Int, key: OnKeyEvent) =
-			addKeyReleasedEvent(keyCode, { e -> key.execute(e) })
-
-	fun addKeyReleasedEvent(keyCode: Int, key: (KeyEvent) -> Unit) = addKeyListener(released = { e ->
-		if (e.keyCode == keyCode) key.invoke(e)
-	})
-
-	infix fun setCursor(o: ImageResource) = setCursor(ImageObject(o))
-	infix fun setCursor(o: ImageObject) {
-		cursor = toolkit.createCustomCursor(o.image, Point(0, 0), "cursor")
-	}
-
-
-	/**
-	 * adds objects
-	 *
-	 * @param objs as a collection
-	 */
-	infix fun addObjects(objs: Collection<AbstractObject>) = addObjects(objs.toTypedArray())
-
-	/**
-	 * adds objects
-	 *
-	 * @param objs as an array
-	 */
-	infix fun addObjects(objs: Array<AbstractObject>) = objs.forEach { o -> addObject(o) }
-
-	/**
-	 * adds an object to game, to be shown on game window.
-	 */
-	infix fun addObject(obj: AbstractObject) {
-		if (obj is FText) textAddBuffer.add(obj)
-		else objectAddBuffer.add(obj)
-	}
-
-	/**
-	 * clears all objects.
-	 * this method is safe.
-	 */
-	fun clearObjects() {
-		objectDeleteBuffer.addAll(objects)
-		textDeleteBuffer.addAll(texts)
-	}
-
-	/**
-	 * removes objects.
-	 * this method is safe.
-	 *
-	 * @param objs will remove objects which is equal to them, as an array.
-	 */
-	infix fun removeObjects(objs: Array<AbstractObject>) = objs.forEach { o -> objectDeleteBuffer.add(o) }
-
-	/**
-	 * removes objects.
-	 * this method is safe.
-	 *
-	 * @param objs will remove objects which is equal to them, as a collection.
-	 */
-	infix fun removeObjects(objs: Collection<AbstractObject>) = removeObjects(objs.toTypedArray())
-
-	/**
-	 * removes single object.
-	 * this method is safe.
-	 *
-	 * @param obj will remove objects which is equal to it.
-	 */
-	infix fun removeObject(obj: AbstractObject) {
-		if (obj is FText) textDeleteBuffer.add(obj)
-		else objectDeleteBuffer.add(obj)
-	}
-
-
-	/**
-	 * adds a auto-executed time listener
-	 * you must add or it won't work.
-	 */
-	infix fun addTimeListener(listener: FTimeListener) = timeListenerAddBuffer.add(listener)
-
-	/**
-	 * adds an array of auto-executed time listeners
-	 */
-	infix fun addTimeListeners(listeners: Array<FTimeListener>) = listeners.forEach { l -> addTimeListener(l) }
-
-	/**
-	 * adds a collection of auto-executed time listeners
-	 */
-	infix fun addTimeListeners(listeners: Collection<FTimeListener>) = addTimeListeners(listeners.toTypedArray())
-
-	/**
-	 * removes all auto-executed time listeners
-	 */
-	fun clearTimeListeners() = timeListenerDeleteBuffer.addAll(timeListeners)
-
-	/**
-	 * removes auto-executed time listeners specified in the given array.
-	 *
-	 * @param listeners the array
-	 */
-	infix fun removeTimeListeners(listeners: Array<FTimeListener>) =
-			listeners.forEach { l -> removeTimeListener(l) }
-
-	/**
-	 * auto-execute time listeners which are equal to the given collection.
-	 *
-	 * @param listeners the collection
-	 */
-	infix fun removeTimeListeners(listeners: Collection<FTimeListener>) = removeTimeListeners(listeners.toTypedArray())
-
-	/**
-	 * removes specified listener
-	 *
-	 * @param listener the listener
-	 */
-	infix fun removeTimeListener(listener: FTimeListener) = timeListenerDeleteBuffer.add(listener)
 
 
 
@@ -383,18 +199,9 @@ abstract class Game() : JFrame(), Runnable {
 	override fun getMousePosition() = panel.mousePosition!!
 
 	override fun run() {
-		FLog.v("Engine start!")
-		onLastInit()
-		loopIf(!paused && !stopped && refresh.ended()) {
+		loopIf() {
 			forceRun {
-				onRefresh()
-				timeListeners.forEach { it.check() }
-				panel.repaint()
-				++fpsCounter
-				if (fpsTimer.ended()) {
-					fpsDisplay = fpsCounter
-					fpsCounter = 0
-				}
+
 			}
 		}
 		FLog.v("Engine thread exited.")

@@ -1,8 +1,6 @@
-package org.frice.game.utils.data
+package org.frice.android.utils.data
 
-import java.awt.image.BufferedImage
 import java.io.File
-import javax.imageio.ImageIO
 
 /**
  * Created by ice1000 on 2016/9/3.
@@ -11,9 +9,7 @@ import javax.imageio.ImageIO
  * @since v0.5
  */
 object FileUtils {
-	@JvmStatic fun image2File(image: BufferedImage, type: String, file: File) = ImageIO.write(image, type, file)
-	@JvmStatic fun image2File(image: BufferedImage, file: File) = image2File(image, "png", file)
-	@JvmStatic fun image2File(image: BufferedImage, file: String) = image2File(image, File(file))
+	// TODO image 2 file
 
 	@JvmStatic fun string2File(string: String, file: File) = file.writeText(string)
 	@JvmStatic fun string2File(string: String, file: String) = string2File(string, File(file))
