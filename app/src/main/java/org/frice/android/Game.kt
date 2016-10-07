@@ -14,12 +14,12 @@ import org.frice.android.obj.PhysicalObject
 import org.frice.android.obj.button.FButton
 import org.frice.android.obj.button.FText
 import org.frice.android.obj.button.SimpleButton
+import org.frice.android.obj.effects.LineEffect
 import org.frice.android.resource.graphics.ColorResource
 import org.frice.android.utils.graphics.shape.FOval
 import org.frice.android.utils.graphics.shape.FRectangle
 import org.frice.android.utils.message.error.FatalError
 import org.frice.android.utils.message.log.FLog
-import org.frice.android.obj.effects.LineEffect
 import org.frice.game.obj.sub.ShapeObject
 import org.frice.game.resource.FResource
 import org.frice.game.utils.misc.forceRun
@@ -107,8 +107,8 @@ open class Game : AppCompatActivity() {
 		fpsTimer = FTimer(1000)
 		setContentView(canvas)
 		onInit()
-		FLog.v("Engine start!")
 		thread {
+			FLog.v("Engine start!")
 			loopIf(!paused && !stopped && refresh.ended()) {
 				forceRun {
 					onRefresh()
