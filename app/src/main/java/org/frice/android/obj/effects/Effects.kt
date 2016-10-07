@@ -1,11 +1,14 @@
-package org.frice.game.obj.effects
+package org.frice.android.obj.effects
 
 import android.graphics.Bitmap
 import org.frice.android.obj.AbstractObject
+import org.frice.android.obj.CollideBox
 import org.frice.android.resource.graphics.ColorResource
 import org.frice.android.resource.graphics.CurveResource
 import org.frice.android.resource.graphics.FunctionResource
+import org.frice.android.resource.graphics.ParticleResource
 import org.frice.android.resource.image.ImageResource
+import org.frice.android.utils.graphics.shape.FRectangle
 import org.frice.game.obj.sub.ImageObject
 
 /**
@@ -22,33 +25,33 @@ class LineEffect(var colorResource: ColorResource, override var x: Double, overr
 	constructor(x: Double, y: Double, x2: Double, y2: Double) : this(ColorResource.BLACK, x, y, x2, y2)
 }
 
-///**
-// * Created by ice1000 on 2016/8/17.
-// * @author ice1000
-// * @since 0.3.2
-// */
+/**
+ * Created by ice1000 on 2016/8/17.
+ * @author ice1000
+ * @since 0.3.2
+ */
 // FIXME!!!
-//class ParticleEffect(private var resource: ParticleResource, override var x: Double, override var y: Double) :
-//		ImageObject(resource.getResource(), x, y) {
-//	override val image: Bitmap
-//		get() = resource.getResource()
-//
-//	override val collideBox = FRectangle(x.toInt(), y.toInt())
-//
-//	override val width: Double
-//		get() = resource.width.toDouble()
-//	override val height: Double
-//		get() = resource.height.toDouble()
-//
-//	override fun getResource() = ImageResource.create(image)
-//
-//	override fun scale(x: Double, y: Double) {
-//		resource.width = (resource.width * x / 1000.0).toInt()
-//		resource.height = (resource.height * y / 1000.0).toInt()
-//	}
-//
-//	//	override fun isCollide(other: CollideBox): Boolean = false
-//}
+class ParticleEffect(private var resource: ParticleResource, override var x: Double, override var y: Double) :
+		ImageObject(resource.getResource(), x, y) {
+	override val image: Bitmap
+		get() = resource.getResource()
+
+	override val collideBox = FRectangle(x.toInt(), y.toInt())
+
+	override val width: Double
+		get() = resource.width.toDouble()
+	override val height: Double
+		get() = resource.height.toDouble()
+
+	override fun getResource() = ImageResource.create(image)
+
+	override fun scale(x: Double, y: Double) {
+		resource.width = (resource.width * x / 1000.0).toInt()
+		resource.height = (resource.height * y / 1000.0).toInt()
+	}
+
+	override fun isCollide(other: CollideBox): Boolean = false
+}
 
 /**
  * Tested, Work stably.

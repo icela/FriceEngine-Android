@@ -2,8 +2,12 @@ package org.frice.android.resource.graphics
 
 import android.graphics.Bitmap
 import android.graphics.Color
+import org.frice.android.Game
+import org.frice.android.resource.image.ImageResource
 import org.frice.game.resource.FResource
 import org.frice.game.utils.misc.forceRun
+import org.frice.game.utils.misc.loop
+import java.util.*
 
 /**
  * Created by ice1000 on 2016/8/14.
@@ -128,66 +132,59 @@ class CurveResource(color: ColorResource, val f: (Double) -> List<Double>, width
 
 	override fun getResource() = image
 }
-//
-///**
-// * Particle effects
-// * Created by ice1000 on 2016/8/17.
-// *
-// * @author ice1000
-// * @since v0.3.2
-// */
+
+/**
+ * Particle effects
+ * Created by ice1000 on 2016/8/17.
+ *
+ * @author ice1000
+ * @since v0.3.2
+ */
 // FIXME!!!
-//class ParticleResource(val game: Game,
-//                       var width: Int,
-//                       var height: Int,
-//                       val back: FResource,
-//                       var fore: ColorResource,
-//                       var percentage: Double) : FResource {
-//	constructor(game: Game, x: Int, y: Int, back: ColorResource, fore: ColorResource) :
-//	this(game, x, y, back, fore, 0.5)
-//
-//	constructor(game: Game, x: Int, y: Int, percentage: Double) :
-//	this(game, x, y, ColorResource.WHITE, ColorResource.BLACK, percentage)
-//
-//	constructor(game: Game, x: Int, y: Int) : this(game, x, y, 0.5)
-//
-//	/**
-//	 * particle effects as an bitmap
-//	 */
-//	private val image = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-//	private val random = Random(Random().nextLong())
-//
-//	private fun drawBackground() {
-//		val g = image.graphics
-//		when (back) {
-//			is ColorResource -> {
-//				g.fillRect(0, 0, width, height)
-//				g.color = back.color
-//			}
-//			is ImageResource -> g.drawImage(back.bitmap, 0, 0, width, height, game)
-//		}
-//	}
-//
-//	init {
-//		drawBackground()
-//		loop((image.width * image.height * percentage).toInt()) {
-//			image.setPixel(random.nextInt(width), random.nextInt(height), fore.color)
-//		}
-//	}
-//
-//	override fun getResource() = image.apply {
-//		//		FLog.debug("Ah!? Ah!")
-//		var cache1: Int
-//		var cache2: Int
-//		loop((image.width * image.height * percentage).toInt()) {
-//			cache1 = random.nextInt(width)
-//			cache2 = random.nextInt(height)
-//			image.setPixel(random.nextInt(width), random.nextInt(height), fore.color)
-//			image.setPixel(cache1, cache2, when (back) {
-//				is ColorResource -> back.color.rgb
-//				is ImageResource -> back.bitmap.getRGB(cache1, cache2)
-//				else -> ColorResource.COLORLESS.color
-//			})
-//		}
-//	}
-//}
+class ParticleResource(val game: Game,
+                       var width: Int,
+                       var height: Int,
+                       val back: FResource,
+                       var fore: ColorResource,
+                       var percentage: Double) : FResource {
+	constructor(game: Game, x: Int, y: Int, back: ColorResource, fore: ColorResource) :
+	this(game, x, y, back, fore, 0.5)
+
+	constructor(game: Game, x: Int, y: Int, percentage: Double) :
+	this(game, x, y, ColorResource.WHITE, ColorResource.BLACK, percentage)
+
+	constructor(game: Game, x: Int, y: Int) : this(game, x, y, 0.5)
+
+	/**
+	 * particle effects as an bitmap
+	 */
+	private val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+	private val random = Random(Random().nextLong())
+
+	private fun drawBackground() {
+		// unknown how 2 deal with
+		// FIXME
+	}
+
+	init {
+		drawBackground()
+		loop((bitmap.width * bitmap.height * percentage).toInt()) {
+			bitmap.setPixel(random.nextInt(width), random.nextInt(height), fore.color)
+		}
+	}
+
+	override fun getResource() = bitmap.apply {
+		var cache1: Int
+		var cache2: Int
+		loop((bitmap.width * bitmap.height * percentage).toInt()) {
+			cache1 = random.nextInt(width)
+			cache2 = random.nextInt(height)
+			bitmap.setPixel(random.nextInt(width), random.nextInt(height), fore.color)
+			bitmap.setPixel(cache1, cache2, when (back) {
+				is ColorResource -> back.color
+				is ImageResource -> back.bitmap.getPixel(cache1, cache2)
+				else -> ColorResource.COLORLESS.color
+			})
+		}
+	}
+}
