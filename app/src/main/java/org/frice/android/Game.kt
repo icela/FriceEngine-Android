@@ -3,16 +3,24 @@ package org.frice.android
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.RectF
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.view.MotionEvent
 import android.view.View
+import org.frice.android.obj.FObject
+import org.frice.android.obj.button.FButton
+import org.frice.android.obj.button.FText
+import org.frice.android.obj.button.SimpleButton
 import org.frice.android.resource.graphics.ColorResource
+import org.frice.android.utils.graphics.shape.FOval
 import org.frice.android.utils.graphics.shape.FRectangle
+import org.frice.android.utils.message.error.FatalError
 import org.frice.android.utils.message.log.FLog
 import org.frice.game.obj.AbstractObject
 import org.frice.game.obj.FObject
 import org.frice.game.obj.PhysicalObject
-import org.frice.game.obj.button.FText
+import org.frice.game.obj.effects.LineEffect
 import org.frice.game.obj.sub.ShapeObject
 import org.frice.game.resource.FResource
 import org.frice.game.utils.misc.forceRun
@@ -106,6 +114,8 @@ open class Game : AppCompatActivity() {
 
 	protected open fun onInit() = Unit
 	protected open fun onRefresh() = Unit
+	protected open fun onClick() = Unit
+	protected open fun onTouch(event: MotionEvent) = Unit
 	protected open fun customDraw(canvas: Canvas) = Unit
 
 	/**
@@ -210,7 +220,6 @@ open class Game : AppCompatActivity() {
 	 */
 	infix fun removeTimeListener(listener: FTimeListener) = timeListenerDeleteBuffer.add(listener)
 
-
 	/**
 	 * do the delete and add work, to prevent Exceptions
 	 */
@@ -231,7 +240,21 @@ open class Game : AppCompatActivity() {
 		textAddBuffer.clear()
 	}
 
+	/**
+	 * must be used in Game
+	 */
 	inner class FriceCanvas(context: Context) : View(context) {
+
+		init {
+			if (context !is Game) throw FatalError()
+			setOnClickListener {
+				context.onClick()
+			}
+			setOnTouchListener { view, motionEvent ->
+				context.onTouch(motionEvent)
+				return@setOnTouchListener false
+			}
+		}
 
 		val p = Paint().apply {
 			isAntiAlias = true
@@ -251,32 +274,73 @@ open class Game : AppCompatActivity() {
 
 			canvas?.let {
 				canvas.save()
+
 				objects.forEach { o ->
-					canvas.restore()
-					if (o is PhysicalObject) canvas.rotate(o.rotate.toFloat(),
-							(o.x + o.width / 2).toFloat(), (o.y + o.height / 2).toFloat())
-					else canvas.rotate(o.rotate.toFloat(), o.x.toFloat(), o.y.toFloat())
-					when (o) {
-						is FObject.ImageOwner ->
-							canvas.drawBitmap(o.image, o.x.toFloat(), o.y.toFloat(), p)
-						is ShapeObject -> {
-							p.color = o.getResource().color
-							when (o.collideBox) {
-								is FRectangle -> canvas.drawRect(
+
+					if (autoGC && (o.x.toInt() < -width ||
+							o.x.toInt() > width + width ||
+							o.y.toInt() < -height ||
+							o.y.toInt() > height + height)) {
+						if (o is PhysicalObject) o.died = true
+						removeObject(o)
+
+						canvas.restore()
+						if (o is PhysicalObject) canvas.rotate(o.rotate.toFloat(),
+								(o.x + o.width / 2).toFloat(), (o.y + o.height / 2).toFloat())
+						else canvas.rotate(o.rotate.toFloat(), o.x.toFloat(), o.y.toFloat())
+						when (o) {
+							is FObject.ImageOwner ->
+								canvas.drawBitmap(o.image, o.x.toFloat(), o.y.toFloat(), p)
+							is ShapeObject -> {
+								p.color = o.getResource().color
+								when (o.collideBox) {
+									is FRectangle -> canvas.drawRect(
+											o.x.toFloat(),
+											o.y.toFloat(),
+											o.width.toFloat(),
+											o.height.toFloat(),
+											p
+									)
+									is FOval -> canvas.drawOval(
+											RectF(
+													o.x.toFloat(),
+													o.y.toFloat(),
+													o.width.toFloat(),
+													o.height.toFloat()
+											),
+											p
+									)
+								}
+							}
+							is LineEffect -> {
+								p.color = o.colorResource.color
+								canvas.drawLine(
 										o.x.toFloat(),
 										o.y.toFloat(),
-										o.width.toFloat(),
-										o.height.toFloat(),
+										o.x2.toFloat(),
+										o.y2.toFloat(),
 										p
 								)
-//								is FOval -> canvas.drawOval(
-//										o.x.toFloat(),
-//										o.y.toFloat(),
-//										o.width.toFloat(),
-//										o.height.toFloat(),
-//										p
-//								)
 							}
+						}
+					}
+
+					texts.forEach { b ->
+						if (b is FButton) {
+							p.color = b.getColor().color
+						}
+						when (b) {
+							is FObject.ImageOwner ->
+								canvas.drawBitmap(b.image, b.x.toFloat(), b.y.toFloat(), p)
+							is SimpleButton -> {
+								p.color = b.getColor().color
+								canvas.drawRoundRect(b.x.toFloat(), b.y.toFloat(),
+										b.width.toFloat(), b.height.toFloat(),
+										Math.min((b.width * 0.5).toFloat(), 10),
+										Math.min((b.height * 0.5).toFloat(), 10), p)
+								canvas.drawText(b.text, b.x.toFloat(), b.y.toFloat(), p)
+							}
+							else -> canvas.drawText(b.text, b.x.toFloat(), b.y.toFloat(), p)
 						}
 					}
 				}

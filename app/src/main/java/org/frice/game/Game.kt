@@ -1,5 +1,7 @@
 package org.frice.game
 
+import org.frice.android.obj.button.FButton
+import org.frice.android.resource.graphics.ColorResource
 import org.frice.game.event.OnClickEvent
 import org.frice.game.event.OnKeyEvent
 import org.frice.game.event.OnMouseEvent
@@ -69,68 +71,20 @@ abstract class Game() : JFrame(), Runnable {
 		Thread(this).start()
 	}
 
-	protected fun mouse(e: OnMouseEvent) = texts.forEach { b ->
-		if (b is FButton && b.containsPoint(e.event.x, e.event.y)) b onMouse e
-	}
-
-	protected fun click(e: OnClickEvent) = texts.forEach { b ->
-		if (b is FButton && b.containsPoint(e.event.x, e.event.y)) b onClick e
-	}
-
-	protected open fun onClick(e: OnClickEvent) = Unit
-	protected open fun onMouse(e: OnMouseEvent) = Unit
-	protected open fun onExit() {
-		if (FDialog(this).confirm("Are you sure to exit?",
-				"Ensuring", JOptionPane.YES_NO_OPTION) ==
-				JOptionPane.YES_OPTION)
-			System.exit(0)
-		else return
-	}
-
-
 
 	protected fun drawEverything(getBGG: () -> Graphics2D) {
 		processBuffer()
 
-		objects.forEach { o ->
-			if (o is FObject) {
-				o.runAnims()
-				o.checkCollision()
-			}
-		}
-
-		objects.forEach { o ->
-			when (o) {
-				is FObject.ImageOwner -> bgg.drawImage(o.image, o.x.toInt(), o.y.toInt(), this)
-				is ShapeObject -> {
-					bgg.color = o.getResource().color
-					when (o.collideBox) {
-						is FRectangle -> bgg.fillRect(
-								o.x.toInt(),
-								o.y.toInt(),
-								o.width.toInt(),
-								o.height.toInt()
-						)
-						is FOval -> bgg.fillOval(
-								o.x.toInt(),
-								o.y.toInt(),
-								o.width.toInt(),
-								o.height.toInt()
-						)
-					}
-				}
-				is LineEffect -> bgg.drawLine(o.x.toInt(), o.y.toInt(), o.x2.toInt(), o.y2.toInt())
-			}
-			if (autoGC && (o.x.toInt() < -width ||
-					o.x.toInt() > width + width ||
-					o.y.toInt() < -height ||
-					o.y.toInt() > height + height)) {
-				if (o is PhysicalObject) o.died = true
-				removeObject(o)
-				//FLog.i("o.x.toInt() = ${o.x.toInt()}, width = $width," +
-				//		" o.y.toInt() = ${o.y.toInt()}, height = $height")
-			}
-		}
+//				is LineEffect -> bgg.drawLine(o.x.toInt(), o.y.toInt(), o.x2.toInt(), o.y2.toInt())
+//			}
+//			if (autoGC && (o.x.toInt() < -width ||
+//					o.x.toInt() > width + width ||
+//					o.y.toInt() < -height ||
+//					o.y.toInt() > height + height)) {
+//				if (o is PhysicalObject) o.died = true
+//				removeObject(o)
+//			}
+//		}
 
 		texts.forEach { b ->
 			val bgg = getBGG()
@@ -149,39 +103,6 @@ abstract class Game() : JFrame(), Runnable {
 				}
 			} else bgg.drawString(b.text, b.x.toInt(), b.y.toInt())
 		}
-		customDraw(getBGG())
-	}
-
-	/**
-	 * set the frame bounds (size and position)
-	 */
-	override infix fun setBounds(r: Rectangle) {
-		super.setBounds(r)
-		panel.bounds = r
-	}
-
-	/**
-	 * set the frame bounds (size and position)
-	 */
-	override fun setBounds(x: Int, y: Int, width: Int, height: Int) {
-		super.setBounds(x, y, width, height)
-		panel.setBounds(x, y, width, height)
-	}
-
-	/**
-	 * set the frame size
-	 */
-	override fun setSize(width: Int, height: Int) {
-		super.setSize(width, height)
-		panel.setSize(width, height)
-	}
-
-	/**
-	 * set the frame size
-	 */
-	override infix fun setSize(d: Dimension) {
-		super.setSize(d)
-		panel.size = d
 	}
 
 	/**
@@ -197,15 +118,6 @@ abstract class Game() : JFrame(), Runnable {
 	 * @return exact position of the mouse
 	 */
 	override fun getMousePosition() = panel.mousePosition!!
-
-	override fun run() {
-		loopIf() {
-			forceRun {
-
-			}
-		}
-		FLog.v("Engine thread exited.")
-	}
 
 	private fun drawBackground(back: FResource, g: Graphics2D) {
 		when (back) {

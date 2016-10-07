@@ -1,4 +1,4 @@
-package org.frice.game.obj.button
+package org.frice.android.obj.button
 
 import android.graphics.Bitmap
 import org.frice.android.resource.graphics.ColorResource

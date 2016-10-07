@@ -1,7 +1,7 @@
-package org.frice.game.obj.button
+package org.frice.android.obj.button
 
-import org.frice.game.obj.AbstractObject
-import org.frice.game.resource.graphics.ColorResource
+import org.frice.android.obj.AbstractObject
+import org.frice.android.resource.graphics.ColorResource
 
 /**
  * Created by ice1000 on 2016/8/19.

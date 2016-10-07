@@ -136,6 +136,7 @@ class CurveResource(color: ColorResource, val f: (Double) -> List<Double>, width
 // * @author ice1000
 // * @since v0.3.2
 // */
+// FIXME!!!
 //class ParticleResource(val game: Game,
 //                       var width: Int,
 //                       var height: Int,
