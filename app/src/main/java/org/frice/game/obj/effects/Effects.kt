@@ -1,11 +1,11 @@
 package org.frice.game.obj.effects
 
 import android.graphics.Bitmap
+import org.frice.android.obj.AbstractObject
 import org.frice.android.resource.graphics.ColorResource
 import org.frice.android.resource.graphics.CurveResource
 import org.frice.android.resource.graphics.FunctionResource
 import org.frice.android.resource.image.ImageResource
-import org.frice.game.obj.AbstractObject
 import org.frice.game.obj.sub.ImageObject
 
 /**

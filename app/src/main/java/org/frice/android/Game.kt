@@ -8,7 +8,9 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.MotionEvent
 import android.view.View
+import org.frice.android.obj.AbstractObject
 import org.frice.android.obj.FObject
+import org.frice.android.obj.PhysicalObject
 import org.frice.android.obj.button.FButton
 import org.frice.android.obj.button.FText
 import org.frice.android.obj.button.SimpleButton
@@ -17,9 +19,6 @@ import org.frice.android.utils.graphics.shape.FOval
 import org.frice.android.utils.graphics.shape.FRectangle
 import org.frice.android.utils.message.error.FatalError
 import org.frice.android.utils.message.log.FLog
-import org.frice.game.obj.AbstractObject
-import org.frice.game.obj.FObject
-import org.frice.game.obj.PhysicalObject
 import org.frice.game.obj.effects.LineEffect
 import org.frice.game.obj.sub.ShapeObject
 import org.frice.game.resource.FResource
@@ -261,9 +260,14 @@ open class Game : AppCompatActivity() {
 			style = Paint.Style.FILL
 		}
 
+		private fun Paint.reset() {
+			color = ColorResource.GRAY.color
+		}
+
 		override fun onDraw(canvas: Canvas?) {
 			super.onDraw(canvas)
 			processBuffer()
+			canvas?.save()
 
 			objects.forEach { o ->
 				if (o is FObject) {
@@ -273,9 +277,10 @@ open class Game : AppCompatActivity() {
 			}
 
 			canvas?.let {
-				canvas.save()
-
 				objects.forEach { o ->
+
+					canvas.restore()
+					p.reset()
 
 					if (autoGC && (o.x.toInt() < -width ||
 							o.x.toInt() > width + width ||
@@ -283,67 +288,77 @@ open class Game : AppCompatActivity() {
 							o.y.toInt() > height + height)) {
 						if (o is PhysicalObject) o.died = true
 						removeObject(o)
+					}
 
-						canvas.restore()
-						if (o is PhysicalObject) canvas.rotate(o.rotate.toFloat(),
-								(o.x + o.width / 2).toFloat(), (o.y + o.height / 2).toFloat())
-						else canvas.rotate(o.rotate.toFloat(), o.x.toFloat(), o.y.toFloat())
-						when (o) {
-							is FObject.ImageOwner ->
-								canvas.drawBitmap(o.image, o.x.toFloat(), o.y.toFloat(), p)
-							is ShapeObject -> {
-								p.color = o.getResource().color
-								when (o.collideBox) {
-									is FRectangle -> canvas.drawRect(
-											o.x.toFloat(),
-											o.y.toFloat(),
-											o.width.toFloat(),
-											o.height.toFloat(),
-											p
-									)
-									is FOval -> canvas.drawOval(
-											RectF(
-													o.x.toFloat(),
-													o.y.toFloat(),
-													o.width.toFloat(),
-													o.height.toFloat()
-											),
-											p
-									)
-								}
-							}
-							is LineEffect -> {
-								p.color = o.colorResource.color
-								canvas.drawLine(
+					if (o is PhysicalObject) canvas.rotate(o.rotate.toFloat(),
+							(o.x + o.width / 2).toFloat(), (o.y + o.height / 2).toFloat())
+					else canvas.rotate(o.rotate.toFloat(), o.x.toFloat(), o.y.toFloat())
+					when (o) {
+						is FObject.ImageOwner ->
+							canvas.drawBitmap(o.image, o.x.toFloat(), o.y.toFloat(), p)
+						is ShapeObject -> {
+							p.color = o.getResource().color
+							when (o.collideBox) {
+								is FRectangle -> canvas.drawRect(
 										o.x.toFloat(),
 										o.y.toFloat(),
-										o.x2.toFloat(),
-										o.y2.toFloat(),
+										o.width.toFloat(),
+										o.height.toFloat(),
+										p
+								)
+								is FOval -> canvas.drawOval(
+										RectF(
+												o.x.toFloat(),
+												o.y.toFloat(),
+												o.width.toFloat(),
+												o.height.toFloat()
+										),
 										p
 								)
 							}
 						}
+						is LineEffect -> {
+							p.color = o.colorResource.color
+							canvas.drawLine(
+									o.x.toFloat(),
+									o.y.toFloat(),
+									o.x2.toFloat(),
+									o.y2.toFloat(),
+									p
+							)
+						}
 					}
 
 					texts.forEach { b ->
+
+						canvas.restore()
+						p.reset()
+
 						if (b is FButton) {
 							p.color = b.getColor().color
-						}
-						when (b) {
-							is FObject.ImageOwner ->
-								canvas.drawBitmap(b.image, b.x.toFloat(), b.y.toFloat(), p)
-							is SimpleButton -> {
-								p.color = b.getColor().color
-								canvas.drawRoundRect(b.x.toFloat(), b.y.toFloat(),
-										b.width.toFloat(), b.height.toFloat(),
-										Math.min((b.width * 0.5).toFloat(), 10),
-										Math.min((b.height * 0.5).toFloat(), 10), p)
-								canvas.drawText(b.text, b.x.toFloat(), b.y.toFloat(), p)
+							when (b) {
+								is FObject.ImageOwner ->
+									canvas.drawBitmap(b.image, b.x.toFloat(), b.y.toFloat(), p)
+								is SimpleButton -> {
+									p.color = b.getColor().color
+									canvas.drawRoundRect(
+											RectF(
+													b.x.toFloat(),
+													b.y.toFloat(),
+													b.width.toFloat(),
+													b.height.toFloat()
+											),
+											Math.min((b.width * 0.5).toFloat(), 10F),
+											Math.min((b.height * 0.5).toFloat(), 10F), p)
+									p.color = ColorResource.GRAY.color
+									canvas.drawText(b.text, b.x.toFloat(), b.y.toFloat(), p)
+								}
 							}
-							else -> canvas.drawText(b.text, b.x.toFloat(), b.y.toFloat(), p)
-						}
+						} else canvas.drawText(b.text, b.x.toFloat(), b.y.toFloat(), p)
 					}
 				}
+
+				if (showFPS) canvas.drawText("fps: $fpsDisplay", 30F, height - 30F, p)
 
 				customDraw(canvas)
 			}
