@@ -29,6 +29,19 @@ import org.frice.game.utils.time.FTimer
 import java.util.*
 import kotlin.concurrent.thread
 
+
+/**
+ * First game class(not for you)
+ *
+ * Standard library, mainly for GUI.
+ * some other library is in @see
+ * The base game class.
+ * this class do rendering, and something which are invisible to
+ * game developer.
+ *
+ * Created by ice1000 on 2016/10/6.
+ * @author ice1000
+ */
 open class Game : AppCompatActivity() {
 
 	protected @JvmField val objects = LinkedList<AbstractObject>()

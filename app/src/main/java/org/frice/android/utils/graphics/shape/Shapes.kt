@@ -26,7 +26,7 @@ open class FCircle(r: Double) : FOval(r, r)
  * @author ice1000
  * @since v0.1.1
  */
-open class FOval(var rh: Double, var rv: Double) : FShape {
+open class FOval(rh: Double, rv: Double) : FShape {
 	override var width = (rh + rh).toInt()
 	override var height = (rv + rv).toInt()
 }

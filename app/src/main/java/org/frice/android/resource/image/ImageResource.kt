@@ -56,7 +56,7 @@ abstract class ImageResource : FResource {
  */
 class PartImageResource(origin: ImageResource, x: Int, y: Int, width: Int, height: Int) : ImageResource() {
 
-	override var bitmap = Bitmap.createBitmap(origin.bitmap, x, y, width, height)
+	override var bitmap: Bitmap = Bitmap.createBitmap(origin.bitmap, x, y, width, height)
 }
 
 

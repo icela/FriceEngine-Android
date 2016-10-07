@@ -1,10 +1,10 @@
 package org.frice.game.obj.sub
 
 import android.graphics.Bitmap
+import org.frice.android.obj.CollideBox
+import org.frice.android.obj.FObject
 import org.frice.android.resource.image.ImageResource
 import org.frice.android.utils.graphics.shape.FRectangle
-import org.frice.game.obj.CollideBox
-import org.frice.game.obj.FObject
 
 /**
  * Base GameObject class

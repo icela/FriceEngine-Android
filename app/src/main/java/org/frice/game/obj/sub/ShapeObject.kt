@@ -1,11 +1,11 @@
 package org.frice.game.obj.sub
 
+import org.frice.android.obj.CollideBox
+import org.frice.android.obj.FObject
+import org.frice.android.resource.graphics.ColorResource
+import org.frice.android.utils.graphics.shape.FRectangle
+import org.frice.android.utils.graphics.shape.FShape
 import org.frice.game.anim.move.DoublePair
-import org.frice.game.obj.CollideBox
-import org.frice.game.obj.FObject
-import org.frice.game.resource.graphics.ColorResource
-import org.frice.game.utils.graphics.shape.FRectangle
-import org.frice.game.utils.graphics.shape.FShape
 
 /**
  * an object with a utils and a shape, used to create an simple object quickly

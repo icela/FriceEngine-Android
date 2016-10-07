@@ -1,6 +1,6 @@
 package org.frice.game.obj.sub
 
-import org.frice.game.resource.image.ImageResource
+import org.frice.android.resource.image.ImageResource
 
 /**
  * Not finished yet.
