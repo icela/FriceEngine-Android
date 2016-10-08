@@ -8,12 +8,12 @@ import java.io.File
  * @author ice1000
  * @since v0.5
  */
-object FileUtils {
-	// TODO image 2 file
+// TODO image 2 file
 
-	@JvmStatic fun string2File(string: String, file: File) = file.writeText(string)
-	@JvmStatic fun string2File(string: String, file: String) = string2File(string, File(file))
+fun string2File(string: String, file: File) = file.writeText(string)
 
-	@JvmStatic fun bytes2File(byteArray: ByteArray, file: File) = file.writeBytes(byteArray)
-	@JvmStatic fun bytes2File(byteArray: ByteArray, file: String) = bytes2File(byteArray, File(file))
-}
+fun string2File(string: String, file: String) = string2File(string, File(file))
+
+fun bytes2File(byteArray: ByteArray, file: File) = file.writeBytes(byteArray)
+fun bytes2File(byteArray: ByteArray, file: String) = bytes2File(byteArray, File(file))
+
