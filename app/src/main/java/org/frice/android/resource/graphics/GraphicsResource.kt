@@ -16,6 +16,7 @@ import java.util.*
  */
 class ColorResource(color: Int) : FResource {
 	val color: Int
+
 	init {
 		this.color = Color.rgb(
 				(color shr 16) % 0xFF,
@@ -141,12 +142,13 @@ class CurveResource(color: ColorResource, val f: (Double) -> List<Double>, width
  * @since v0.3.2
  */
 // FIXME!!!
-class ParticleResource(val game: Game,
-                       var width: Int,
-                       var height: Int,
-                       val back: FResource,
-                       var fore: ColorResource,
-                       var percentage: Double) : FResource {
+class ParticleResource(
+		val game: Game,
+		var width: Int,
+		var height: Int,
+		val back: FResource,
+		var fore: ColorResource,
+		var percentage: Double) : FResource {
 	constructor(game: Game, x: Int, y: Int, back: ColorResource, fore: ColorResource) :
 	this(game, x, y, back, fore, 0.5)
 
