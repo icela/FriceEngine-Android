@@ -5,8 +5,8 @@ import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.net.Uri
-import org.frice.game.utils.data.readString
-import org.frice.game.utils.data.save
+import org.frice.android.utils.data.readString
+import org.frice.android.utils.data.save
 import org.jetbrains.anko.async
 import org.jetbrains.anko.uiThread
 import java.net.URL

@@ -6,7 +6,7 @@ import org.frice.android.obj.FContainer
 import org.frice.android.obj.FObject
 import org.frice.android.resource.graphics.ColorResource
 import org.frice.android.resource.image.ImageResource
-import org.frice.android.utils.graphics.utils.ColorUtils.darker
+import org.frice.android.utils.graphics.utils.darker
 
 /**
  * Created by ice1000 on 2016/8/18.
