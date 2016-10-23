@@ -16,7 +16,6 @@ import java.net.URL
  *
  * @author ice1000
  */
-
 fun Context.openWeb(url: String) = startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
 
 /**
@@ -44,9 +43,12 @@ fun Context.webResource(
 		url: String,
 		submit: (String) -> Unit,
 		default: String = DEFAULT_VALUE) {
+	var ret = ""
 	async() {
-		var ret = readString(default)
+		ret = readString(default)
 		uiThread { submit(ret) }
+	}
+	async() {
 		if (ret != DEFAULT_VALUE && !haveNetwork) {
 			uiThread { submit(ret) }
 		} else {

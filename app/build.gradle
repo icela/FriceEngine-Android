@@ -5,7 +5,7 @@ android {
 	compileSdkVersion 24
 	buildToolsVersion "24.0.0"
 	defaultConfig {
-		applicationId "org.frice.android"
+		applicationId "org.ice1000"
 		minSdkVersion 16
 		targetSdkVersion 24
 		versionCode 1
@@ -27,6 +27,7 @@ dependencies {
 	compile 'com.android.support:appcompat-v7:24.0.0'
 	compile "org.jetbrains.anko:anko-common:$anko_version"
 	compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+	compile project(":frice")
 	testCompile 'junit:junit:4.12'
 }
 
