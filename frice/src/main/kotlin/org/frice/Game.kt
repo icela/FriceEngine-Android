@@ -89,13 +89,13 @@ open class Game @JvmOverloads constructor(layerCount: Int = 1) : AppCompatActivi
 	}
 
 	override fun dialogConfirmYesNo(msg: String, title: String) =
-			TODO() // JOptionPane.showConfirmDialog(this, msg, title, YES_NO_OPTION) == YES_OPTION
+			false // JOptionPane.showConfirmDialog(this, msg, title, YES_NO_OPTION) == YES_OPTION
 
-	override fun dialogShow(msg: String, title: String) =
-			TODO() // JOptionPane.showMessageDialog(this, msg, title, OK_OPTION)
+	override fun dialogShow(msg: String, title: String) {}
+	// JOptionPane.showMessageDialog(this, msg, title, OK_OPTION)
 
 	override fun dialogInput(msg: String, title: String): String =
-			TODO() // JOptionPane.showInputDialog(this, msg, title)
+			"TODO" // JOptionPane.showInputDialog(this, msg, title)
 
 	override var debug = true
 	override var autoGC = true
