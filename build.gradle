@@ -16,6 +16,7 @@ buildscript {
 	dependencies {
 		classpath 'com.android.tools.build:gradle:2.3.1'
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+		classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
 	}
 }
 
@@ -25,19 +26,6 @@ allprojects {
 		jcenter()
 		maven { url 'https://maven.google.com' }
 	}
-}
-
-task releaseJar(type: Copy) {
-	from 'build/bundles/release'
-	into 'build/libs'
-	include 'classes.jar'
-	rename 'classes.jar', 'engine-' + version + '.jar'
-}
-
-task releaseLib(type: Copy, dependsOn: releaseJar) {
-	into "../../release"
-	from 'libs'
-	from 'build/libs'
 }
 
 task clean(type: Delete) {

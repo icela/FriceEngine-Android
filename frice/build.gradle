@@ -1,4 +1,7 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.github.dcendents.android-maven'
+
+group 'com.github.ice1000'
 
 android {
 	compileSdkVersion 27
@@ -11,7 +14,7 @@ android {
 		versionName "0.1"
 	}
 	sourceSets {
-		main.java.srcDirs += 'src/main/kotlin'
+		main.java.srcDirs = ['src/main/kotlin']
 	}
 }
 
@@ -20,4 +23,14 @@ dependencies {
 	compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 	compile 'com.android.support:appcompat-v7:27.0.2'
 	testCompile 'junit:junit:4.12'
+}
+
+//noinspection GroovyAssignabilityCheck
+task sourcesJar(type: Jar) {
+	from android.sourceSets.main.java.srcDirs
+	classifier = 'sources'
+}
+
+artifacts {
+	archives sourcesJar
 }
