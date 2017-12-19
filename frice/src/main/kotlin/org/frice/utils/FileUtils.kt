@@ -13,15 +13,12 @@ import org.frice.platform.adapter.DroidImage
 import org.frice.resource.manager.*
 import java.io.File
 
-fun Bitmap.image2File(type: String, file: File) = DroidImage(image = this).image2File(type, file)
+fun Bitmap.image2File(file: File) = DroidImage(image = this).image2File(file)
 
-fun DroidImage.image2File(type: String, file: File) {
+fun DroidImage.image2File(file: File) {
 	image.compress(Bitmap.CompressFormat.PNG, 85, file.outputStream())
 	ImageManager[file.absolutePath] = this
 }
-
-fun Bitmap.image2File(file: File) = image2File("png", file)
-fun DroidImage.image2File(file: File) = image2File("png", file)
 
 fun Bitmap.image2File(file: String) = image2File(File(file))
 fun DroidImage.image2File(file: String) = image2File(File(file))
