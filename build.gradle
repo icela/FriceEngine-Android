@@ -25,6 +25,19 @@ allprojects {
 	}
 }
 
+task releaseJar(type: Copy) {
+	from 'build/bundles/release'
+	into 'build/libs'
+	include 'classes.jar'
+	rename 'classes.jar', 'engine-' + version + '.jar'
+}
+
+task releaseLib(type: Copy, dependsOn: releaseJar) {
+	into "../../release"
+	from 'libs'
+	from 'build/libs'
+}
+
 task clean(type: Delete) {
 	delete rootProject.buildDir
 }

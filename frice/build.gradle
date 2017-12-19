@@ -1,12 +1,12 @@
 apply plugin: 'com.android.library'
 
 android {
-	compileSdkVersion 24
-	buildToolsVersion "24.0.0"
+	compileSdkVersion 27
+	buildToolsVersion "27.0.0"
 
 	defaultConfig {
 		minSdkVersion 16
-		targetSdkVersion 24
+		targetSdkVersion 27
 		versionCode 1
 		versionName "0.1"
 	}
@@ -15,9 +15,12 @@ android {
 			minifyEnabled false
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 		}
-	}
-	sourceSets {
-		main.java.srcDirs += 'src/main/kotlin'
+		debug {
+			minifyEnabled false
+			zipAlignEnabled true
+			shrinkResources true
+			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+		}
 	}
 }
 
@@ -25,6 +28,6 @@ dependencies {
 	compile fileTree(dir: 'libs', include: ['*.jar'])
 	compile "org.jetbrains.anko:anko-common:$anko_version"
 	compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-	compile 'com.android.support:appcompat-v7:24.0.0'
+	compile 'com.android.support:appcompat-v7:27.0.0'
 	testCompile 'junit:junit:4.12'
 }

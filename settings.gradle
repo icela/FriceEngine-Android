@@ -1,1 +1,1 @@
-include ':app', ':org.frice', ':frice'
+include ':app', ':frice'

@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/FriceAndroid.iml" filepath="$PROJECT_DIR$/FriceAndroid.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/frice/frice.iml" filepath="$PROJECT_DIR$/frice/frice.iml" />
+      <module fileurl="file://$PROJECT_DIR$/FriceEngine-Android.iml" filepath="$PROJECT_DIR$/FriceEngine-Android.iml" />
     </modules>
   </component>
 </project>
