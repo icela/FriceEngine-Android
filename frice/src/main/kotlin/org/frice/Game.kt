@@ -2,21 +2,18 @@
 
 package org.frice
 
+import android.support.v7.app.AppCompatActivity
 import org.frice.event.*
-import org.frice.obj.AbstractObject
 import org.frice.obj.button.FText
 import org.frice.platform.*
-import org.frice.platform.adapter.JvmDrawer
+import org.frice.platform.adapter.DroidDrawer
 import org.frice.platform.adapter.DroidImage
 import org.frice.resource.graphics.ColorResource
 import org.frice.utils.cast
 import org.frice.utils.message.*
 import org.frice.utils.shape.FRectangle
 import org.frice.utils.time.*
-import java.awt.event.*
 import java.util.function.Consumer
-import javax.imageio.ImageIO.read
-import javax.swing.*
 
 /**
  * The base game class using Swing as renderer.
@@ -31,7 +28,7 @@ import javax.swing.*
  * @since v0.2.3
  */
 @Suppress("LeakingThis")
-open class Game @JvmOverloads constructor(layerCount: Int = 1) : JFrame(), FriceGame<JvmDrawer> {
+open class Game @JvmOverloads constructor(layerCount: Int = 1) : AppCompatActivity(), FriceGame<DroidDrawer> {
 	override val layers = Array(layerCount) { Layer() }
 	override var paused = false
 		set(value) {
@@ -46,13 +43,13 @@ open class Game @JvmOverloads constructor(layerCount: Int = 1) : JFrame(), Frice
 		}
 
 	override fun dialogConfirmYesNo(msg: String, title: String) =
-		JOptionPane.showConfirmDialog(this, msg, title, YES_NO_OPTION) == YES_OPTION
+			JOptionPane.showConfirmDialog(this, msg, title, YES_NO_OPTION) == YES_OPTION
 
 	override fun dialogShow(msg: String, title: String) =
-		JOptionPane.showMessageDialog(this, msg, title, OK_OPTION)
+			JOptionPane.showMessageDialog(this, msg, title, OK_OPTION)
 
 	override fun dialogInput(msg: String, title: String): String =
-		JOptionPane.showInputDialog(this, msg, title)
+			JOptionPane.showInputDialog(this, msg, title)
 
 	override var debug = true
 	override var autoGC = true
@@ -63,15 +60,15 @@ open class Game @JvmOverloads constructor(layerCount: Int = 1) : JFrame(), Frice
 	override var loseFocusChangeColor = true
 
 	override var isFullScreen: Boolean
-		get() = extendedState == Frame.MAXIMIZED_BOTH
+		get() = false
 		set(value) {
-			if (value) extendedState = Frame.MAXIMIZED_BOTH
+			throw UnsupportedOperationException()
 		}
 
 	override var isAlwaysTop: Boolean
-		get() = isAlwaysOnTop
+		get() = false
 		set(value) {
-			if (isAlwaysOnTopSupported) isAlwaysOnTop = value
+			throw UnsupportedOperationException()
 		}
 
 	@get:JvmName(" refresh")
@@ -84,40 +81,14 @@ open class Game @JvmOverloads constructor(layerCount: Int = 1) : JFrame(), Frice
 
 	internal val panel: SwingGamePanel = SwingGamePanel()
 
-	override val drawer: JvmDrawer
+	override val drawer: DroidDrawer
 
 	val fpsCounter = FpsCounter()
 
-	/** represent the mouse as an object */
-	@JvmField
-	val mouse = object : AbstractObject {
-		override var x: Double
-			get() = panel.mousePosition?.getX() ?: -1.0
-			set(value) {
-				panel.mousePosition?.setLocation(value, y)
-			}
-
-		override var y: Double
-			get() = panel.mousePosition?.getY() ?: -1.0
-			set(value) {
-				panel.mousePosition?.setLocation(x, value)
-			}
-
-		override var rotate = 0.0
-		override fun toString() = "($x, $y)"
-	}
-
 	init {
 		isResizable = false
-		layout = BorderLayout()
-		// set icon
-		iconImage = read(javaClass.getResourceAsStream("/icon.png"))
-
-		/// to prevent this engine from the call#cking NPE!!
-		this.add(panel, BorderLayout.CENTER)
-		bounds = BIG_SQUARE
 		onInit()
-		drawer = JvmDrawer(this).apply(JvmDrawer::init)
+		drawer = DroidDrawer(this).apply(JvmDrawer::init)
 		isVisible = true
 		FLog.v("If the window doesn't appear, please call `launch(YourGameClass.class)` instead of the constructor.")
 	}
@@ -147,9 +118,9 @@ open class Game @JvmOverloads constructor(layerCount: Int = 1) : JFrame(), Frice
 	 * add keyboard listeners with lambda
 	 */
 	fun addKeyListener(
-		typed: Consumer<KeyEvent>? = null,
-		pressed: Consumer<KeyEvent>? = null,
-		released: Consumer<KeyEvent>? = null) {
+			typed: Consumer<KeyEvent>? = null,
+			pressed: Consumer<KeyEvent>? = null,
+			released: Consumer<KeyEvent>? = null) {
 		addKeyListener(object : KeyListener {
 			override fun keyPressed(e: KeyEvent) {
 				pressed?.accept(e)
@@ -168,13 +139,13 @@ open class Game @JvmOverloads constructor(layerCount: Int = 1) : JFrame(), Frice
 	override val screenCut get() = drawer.friceImage
 
 	fun addKeyTypedEvent(keyCode: Int, key: Consumer<KeyEvent>)
-		= addKeyListener(typed = Consumer { e -> if (e.keyCode == keyCode) key.accept(e) })
+			= addKeyListener(typed = Consumer { e -> if (e.keyCode == keyCode) key.accept(e) })
 
 	fun addKeyPressedEvent(keyCode: Int, key: Consumer<KeyEvent>)
-		= addKeyListener(pressed = Consumer { e -> if (e.keyCode == keyCode) key.accept(e) })
+			= addKeyListener(pressed = Consumer { e -> if (e.keyCode == keyCode) key.accept(e) })
 
 	fun addKeyReleasedEvent(keyCode: Int, key: Consumer<KeyEvent>)
-		= addKeyListener(released = Consumer { e -> if (e.keyCode == keyCode) key.accept(e) })
+			= addKeyListener(released = Consumer { e -> if (e.keyCode == keyCode) key.accept(e) })
 
 	override fun setCursor(o: FriceImage) {
 		cursor = toolkit.createCustomCursor(cast<DroidImage>(o).image, Point(0, 0), "cursor")

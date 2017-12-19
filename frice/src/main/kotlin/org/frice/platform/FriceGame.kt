@@ -6,9 +6,9 @@ import org.frice.obj.button.*
 import org.frice.obj.effects.LineEffect
 import org.frice.obj.sub.ImageObject
 import org.frice.obj.sub.ShapeObject
-import org.frice.platform.adapter.JvmDrawer
 import org.frice.platform.adapter.DroidImage
-import org.frice.platform.owners.*
+import org.frice.platform.owners.Resizable
+import org.frice.platform.owners.Sized
 import org.frice.resource.graphics.ColorResource
 import org.frice.resource.image.ImageResource
 import org.frice.utils.shape.*
@@ -19,7 +19,7 @@ import org.frice.utils.shape.*
  * @param Drawer the FriceDrawer used
  */
 interface FriceGame<Drawer : FriceDrawer>
-	: TitleOwner, Sized, Resizable, Collidable {
+	: Sized, Resizable, Collidable {
 	val layers: Array<Layer>
 	val drawer: Drawer
 
@@ -131,10 +131,10 @@ interface FriceGame<Drawer : FriceDrawer>
 	fun drawEverything(bgg: Drawer) {
 		processBuffer()
 		layers.forEach {
-			it.objects.removeIf { o ->
+			it.objects.removeAll { o ->
 				if (o is FObject) {
 					o.runAnims()
-					return@removeIf o.died
+					return@removeAll o.died
 				}
 				false
 			}
@@ -144,10 +144,8 @@ interface FriceGame<Drawer : FriceDrawer>
 				if (o is LineEffect && ColorResource.COLORLESS == o.color) return@loop
 				bgg.restore()
 				bgg.init()
-				if (bgg is JvmDrawer) {
-					if (o is FContainer) bgg.rotate(o.rotate, o.x + o.width / 2, o.y + o.height / 2)
-					else bgg.rotate(o.rotate, o.x, o.y)
-				} else bgg.rotate(o.rotate)
+				if (o is FContainer) bgg.rotate(o.rotate, o.x + o.width / 2, o.y + o.height / 2)
+				else bgg.rotate(o.rotate, o.x, o.y)
 				when (o) {
 					is FObject.ImageOwner -> if (collides(o)) bgg.drawImage(o.image, o.x, o.y)
 					is ShapeObject -> {
@@ -175,7 +173,7 @@ interface FriceGame<Drawer : FriceDrawer>
 				bgg.run {
 					restore()
 					init()
-					rotate(b.rotate)
+					// TODO rotate(b.rotate)
 					useFont(b)
 				}
 				if (b is FButton) {
@@ -184,9 +182,9 @@ interface FriceGame<Drawer : FriceDrawer>
 						is SimpleButton -> {
 							bgg.color = b.color
 							bgg.drawRoundRect(b.x, b.y,
-								b.width, b.height,
-								Math.min(b.width * 0.5, 10.0),
-								Math.min(b.height * 0.5, 10.0))
+									b.width, b.height,
+									Math.min(b.width * 0.5, 10.0),
+									Math.min(b.height * 0.5, 10.0))
 							bgg.color = ColorResource.DARK_GRAY
 							bgg.drawString(b.text, b.x + 10, b.y + b.height / 2)
 						}

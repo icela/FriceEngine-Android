@@ -3,6 +3,7 @@ package org.frice.utils
 import android.content.Context
 import android.content.Intent
 import android.net.*
+import org.frice.Game
 import org.frice.utils.data.readString
 import org.frice.utils.data.save
 import org.jetbrains.anko.doAsync
@@ -14,7 +15,7 @@ import java.net.URL
  *
  * @author ice1000
  */
-fun Context.openWeb(url: String) = startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+fun Game.openWeb(url: String) = startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
 
 /**
  * if this value is null,

@@ -5,13 +5,13 @@ import org.frice.obj.button.FText
 import java.util.*
 
 class Layer {
-	val objects = LinkedList<AbstractObject>()
-	val objectDeleteBuffer = ArrayList<AbstractObject>()
-	val objectAddBuffer = ArrayList<AbstractObject>()
+	val objects = mutableListOf<AbstractObject>()
+	val objectDeleteBuffer = mutableListOf<AbstractObject>()
+	val objectAddBuffer = mutableListOf<AbstractObject>()
 
-	val texts = LinkedList<FText>()
-	val textDeleteBuffer = ArrayList<FText>()
-	val textAddBuffer = ArrayList<FText>()
+	val texts = mutableListOf<FText>()
+	val textDeleteBuffer = mutableListOf<FText>()
+	val textAddBuffer = mutableListOf<FText>()
 
 	fun processBuffer() {
 		objects.addAll(objectAddBuffer)

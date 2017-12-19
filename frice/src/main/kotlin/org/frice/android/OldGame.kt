@@ -42,7 +42,7 @@ import kotlin.concurrent.thread
  * Created by ice1000 on 2016/10/6.
  * @author ice1000
  */
-open class Game : AppCompatActivity() {
+open class OldGame : AppCompatActivity() {
 
 	protected @JvmField val objects = LinkedList<AbstractObject>()
 	protected @JvmField val objectDeleteBuffer = ArrayList<AbstractObject>()
