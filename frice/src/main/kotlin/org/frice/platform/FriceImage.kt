@@ -1,6 +1,5 @@
 package org.frice.platform
 
-import org.frice.platform.adapter.JfxImage
 import org.frice.resource.graphics.ColorResource
 
 /**
@@ -13,12 +12,6 @@ interface FriceImage {
 	operator fun get(x: Int, y: Int): ColorResource
 	operator fun set(x: Int, y: Int, color: ColorResource) = set(x, y, color.color)
 	operator fun set(x: Int, y: Int, color: Int)
-
-	/**
-	 * convert this into a JfxImage
-	 * @return the corresponding JfxImage
-	 */
-	fun fx(): JfxImage
 
 	/**
 	 * @param x size proportion on x axis

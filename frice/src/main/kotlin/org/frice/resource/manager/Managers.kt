@@ -7,14 +7,13 @@
  */
 package org.frice.resource.manager
 
+import android.graphics.BitmapFactory
 import org.frice.platform.FriceImage
-import org.frice.platform.adapter.JfxImage
 import org.frice.platform.adapter.DroidImage
 import java.io.File
 import java.net.URL
 import java.nio.charset.Charset
 import java.util.*
-import javax.imageio.ImageIO
 
 /**
  * Resource manager, like a pool.
@@ -50,7 +49,6 @@ interface FManager<T> {
 			FileBytesManager.res.clear()
 			FileTextManager.res.clear()
 			ImageManager.res.clear()
-			WebImageManager.res.clear()
 			URLBytesManager.res.clear()
 			URLTextManager.res.clear()
 		}
@@ -81,17 +79,7 @@ object FileBytesManager : FManager<ByteArray> {
  */
 object ImageManager : FManager<FriceImage> {
 	override val res = HashMap<String, FriceImage>()
-	override fun create(path: String) = ImageIO.read(File(path)).let { if (FManager.useJfx) JfxImage(it) else DroidImage(it) }
-	override operator fun get(path: String) = super.get(path).clone()
-}
-
-/**
- * @author ice1000
- * @since v0.6
- */
-object WebImageManager : FManager<FriceImage> {
-	override val res = HashMap<String, FriceImage>()
-	override fun create(path: String) = ImageIO.read(URL(path)).let { if (FManager.useJfx) JfxImage(it) else DroidImage(it) }
+	override fun create(path: String) = DroidImage(BitmapFactory.decodeFile(path))
 	override operator fun get(path: String) = super.get(path).clone()
 }
 

@@ -32,7 +32,7 @@ class AccelerateMove(var ax: Double, var ay: Double) : SimpleMove(0, 0) {
 		 */
 		@JvmStatic
 		fun byAngle(angle: Double, acceleration: Double) =
-			AccelerateMove(Math.sin(angle) * acceleration, Math.cos(angle) * acceleration)
+				AccelerateMove(Math.sin(angle) * acceleration, Math.cos(angle) * acceleration)
 	}
 }
 
@@ -50,9 +50,9 @@ class ChasingMove(self: AbstractObject, var targetObj: AbstractObject, var speed
 		val b = targetObj.y - self.y
 		val c = Math.sqrt(a * a + b * b)
 		@Suppress("LocalVariableName")
-		val `deltaTime*speed{div}c` = (now - lastRefresh) * speed / c / 1e3
+		val deltaTimeSpeedDivC = (now - lastRefresh) * speed / c / 1e3
 		lastRefresh = now
-		obj.move(`deltaTime*speed{div}c` * a, `deltaTime*speed{div}c` * b)
+		obj.move(deltaTimeSpeedDivC * a, deltaTimeSpeedDivC * b)
 	}
 }
 
@@ -70,9 +70,9 @@ class ApproachingMove(self: AbstractObject, var targetObj: AbstractObject, var p
 		val a = targetObj.x - self.x
 		val b = targetObj.y - self.y
 		@Suppress("LocalVariableName")
-		val `deltaTime*proportion` = (now - lastRefresh) * proportion / 1e3
+		val deltaTimeProportion = (now - lastRefresh) * proportion / 1e3
 		lastRefresh = now
-		obj.move(`deltaTime*proportion` * a, `deltaTime*proportion` * b)
+		obj.move(deltaTimeProportion * a, deltaTimeProportion * b)
 	}
 }
 

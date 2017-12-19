@@ -133,7 +133,7 @@ interface FriceGame<Drawer : FriceDrawer>
 		layers.forEach {
 			it.objects.removeIf { o ->
 				if (o is FObject) {
-					o.`{-# runAnims #-}`()
+					o.runAnims()
 					return@removeIf o.died
 				}
 				false

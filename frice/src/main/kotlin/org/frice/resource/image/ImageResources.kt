@@ -2,7 +2,6 @@ package org.frice.resource.image
 
 import org.frice.platform.FriceImage
 import org.frice.resource.manager.ImageManager
-import org.frice.resource.manager.WebImageManager
 import org.frice.utils.time.FTimer
 
 /**
@@ -18,7 +17,7 @@ open class ImageResourceImpl(override var image: FriceImage) : ImageResource()
  * @author ice1000
  * @since v0.2.2
  */
-class WebImageResource(url: String) : ImageResourceImpl(WebImageManager[url])
+class WebImageResource(url: String) : ImageResourceImpl(ImageManager[url])
 
 /**
  * Created by ice1000 on 2016/8/13.

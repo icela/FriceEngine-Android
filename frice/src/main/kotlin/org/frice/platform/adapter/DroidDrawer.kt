@@ -1,5 +1,6 @@
 package org.frice.platform.adapter
 
+import android.graphics.Canvas
 import org.frice.obj.button.FText
 import org.frice.platform.FriceDrawer
 import org.frice.platform.FriceImage
@@ -12,14 +13,14 @@ import org.frice.utils.forceRun
  *
  * @author ice1000
  */
-class JvmDrawer(private val frame: Frame) : FriceDrawer {
+class DroidDrawer(private val canvas: Canvas) : FriceDrawer {
 
 	override fun init() {
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
 		forceRun { g.font = Font("Consolas", Font.PLAIN, 16) }
 	}
 
-	val friceImage = DroidImage(frame.width, frame.height)
+	val friceImage = DroidImage(canvas.width, canvas.height)
 	override var color: ColorResource
 		get() = ColorResource(g.color)
 		set(value) {
@@ -33,9 +34,9 @@ class JvmDrawer(private val frame: Frame) : FriceDrawer {
 	}
 
 	override fun useFont(text: FText) {
-		if (text.`font tmp obj` == null) text.`font tmp obj` = Font(text.fontName, Font.PLAIN, text.textSize.toInt())
-		if (g.font != text.`font tmp obj`)
-			g.font = cast(text.`font tmp obj`)
+		if (text.fonttmpobj == null) text.fonttmpobj = Font(text.fontName, Font.PLAIN, text.textSize.toInt())
+		if (g.font != text.fonttmpobj)
+			g.font = cast(text.fonttmpobj)
 	}
 
 	override fun drawOval(x: Double, y: Double, width: Double, height: Double) =
@@ -48,7 +49,7 @@ class JvmDrawer(private val frame: Frame) : FriceDrawer {
 		g.drawString(string, x.toInt(), y.toInt())
 
 	override fun drawImage(image: FriceImage, x: Double, y: Double) {
-		g.drawImage(cast<DroidImage>(image).image, x.toInt(), y.toInt(), frame)
+		g.drawImage(cast<DroidImage>(image).image, x.toInt(), y.toInt(), canvas)
 	}
 
 	override fun drawRect(x: Double, y: Double, width: Double, height: Double) =

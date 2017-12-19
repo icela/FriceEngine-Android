@@ -1,13 +1,11 @@
-package org.frice.android.utils.misc
+package org.frice.utils
 
 import android.content.Context
 import android.content.Intent
-import android.net.ConnectivityManager
-import android.net.NetworkInfo
-import android.net.Uri
-import org.frice.android.utils.data.readString
-import org.frice.android.utils.data.save
-import org.jetbrains.anko.async
+import android.net.*
+import org.frice.utils.data.readString
+import org.frice.utils.data.save
+import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 import java.net.URL
 
@@ -44,11 +42,11 @@ fun Context.webResource(
 		submit: (String) -> Unit,
 		default: String = DEFAULT_VALUE) {
 	var ret = ""
-	async() {
+	doAsync {
 		ret = readString(default)
 		uiThread { submit(ret) }
 	}
-	async() {
+	doAsync {
 		if (ret != DEFAULT_VALUE && !haveNetwork) {
 			uiThread { submit(ret) }
 		} else {

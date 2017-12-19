@@ -15,20 +15,20 @@ abstract class FText : AbstractObject {
 	open var textSize: Double = 16.0
 		set(value) {
 			field = value
-			`font tmp obj` = null
+			fonttmpobj = null
 		}
 
 	open var fontName = "Consolas"
 		set(value) {
 			field = value
-			`font tmp obj` = null
+			fonttmpobj = null
 		}
 
 	override var rotate = 0.0
 	abstract val color: ColorResource
 
 	@Suppress("PropertyName")
-	@JvmField internal var `font tmp obj`: Any? = null
+	@JvmField internal var fonttmpobj: Any? = null
 }
 
 /**

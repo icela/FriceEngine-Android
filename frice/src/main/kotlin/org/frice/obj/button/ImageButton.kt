@@ -6,7 +6,6 @@ import org.frice.obj.FObject
 import org.frice.platform.FriceImage
 import org.frice.resource.image.ImageResource
 import org.frice.utils.shape.FShapeQuad
-import java.util.function.Consumer
 
 /**
  * Created by ice1000 on 2016/9/3 0003.

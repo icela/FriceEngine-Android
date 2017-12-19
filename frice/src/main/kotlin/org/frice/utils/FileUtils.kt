@@ -16,8 +16,8 @@ import java.io.File
 fun Bitmap.image2File(type: String, file: File) = DroidImage(image = this).image2File(type, file)
 
 fun DroidImage.image2File(type: String, file: File) {
-	ImageIO.write(image, type, file)
-	ImageManager[file.path] = this
+	image.compress(Bitmap.CompressFormat.PNG, 85, file.outputStream())
+	ImageManager[file.absolutePath] = this
 }
 
 fun Bitmap.image2File(file: File) = image2File("png", file)

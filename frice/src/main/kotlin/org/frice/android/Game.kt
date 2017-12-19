@@ -19,7 +19,7 @@ import org.frice.android.resource.graphics.ColorResource
 import org.frice.android.utils.graphics.shape.FOval
 import org.frice.android.utils.graphics.shape.FRectangle
 import org.frice.android.utils.message.error.FatalError
-import org.frice.android.utils.message.log.FLog
+import org.frice.utils.message.FLog
 import org.frice.game.obj.sub.ShapeObject
 import org.frice.game.resource.FResource
 import org.frice.game.utils.misc.forceRun

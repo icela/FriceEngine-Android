@@ -7,19 +7,17 @@
  */
 package org.frice.utils
 
+import android.graphics.Bitmap
 import org.frice.platform.adapter.DroidImage
-import java.awt.image.BufferedImage
 
-private inline fun BufferedImage.fy(fy: BufferedImage.(Int, Int) -> Int): DroidImage {
-	val jvmImage = JvmImage(width, height)
+private inline fun Bitmap.fy(fy: Bitmap.(Int, Int) -> Int): DroidImage {
+	val jvmImage = DroidImage(width, height)
 	repeat(width - 1) { x: Int ->
-		repeat(height - 1) { y: Int ->
-			jvmImage[x, y] = fy(x, y)
-		}
+		repeat(height - 1) { y: Int -> jvmImage[x, y] = fy(x, y) }
 	}
 	return jvmImage
 }
 
-fun BufferedImage.greenify() = fy { x, y -> getRGB(x, y).greenify() }
-fun BufferedImage.redify() = fy { x, y -> getRGB(x, y).redify() }
-fun BufferedImage.bluify() = fy { x, y -> getRGB(x, y).bluify() }
+fun Bitmap.greenify() = fy { x, y -> getPixel(x, y).greenify() }
+fun Bitmap.redify() = fy { x, y -> getPixel(x, y).redify() }
+fun Bitmap.bluify() = fy { x, y -> getPixel(x, y).bluify() }

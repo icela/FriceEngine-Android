@@ -7,6 +7,7 @@
 @file:JvmName("WebUtils")
 package org.frice.utils
 
+import android.graphics.BitmapFactory
 import org.frice.resource.manager.ImageManager
 import org.frice.resource.manager.URLBytesManager
 import org.frice.resource.manager.URLTextManager
