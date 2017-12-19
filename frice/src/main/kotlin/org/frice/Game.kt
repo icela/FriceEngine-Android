@@ -6,11 +6,13 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
+import android.graphics.PixelFormat
 import android.net.*
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
+import android.view.Window
 import org.frice.event.*
 import org.frice.obj.button.FText
 import org.frice.platform.FriceGame
@@ -63,6 +65,9 @@ open class Game @JvmOverloads constructor(layerCount: Int = 1) : AppCompatActivi
 
 	override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
 		super.onCreate(savedInstanceState, persistentState)
+		requestWindowFeature(Window.FEATURE_NO_TITLE)
+		window.setFormat(PixelFormat.TRANSLUCENT)
+		canvas = FriceCanvas()
 		setContentView(canvas)
 		screenWidth = resources.displayMetrics.widthPixels
 		screenHeight = resources.displayMetrics.heightPixels
@@ -113,7 +118,7 @@ open class Game @JvmOverloads constructor(layerCount: Int = 1) : AppCompatActivi
 			refresh.time = value
 		}
 
-	private val canvas = FriceCanvas()
+	private lateinit var canvas: FriceCanvas
 	var drawer: DroidDrawer? = null
 
 	val fpsCounter = FpsCounter()

@@ -16,6 +16,7 @@ android {
 	}
 	sourceSets {
 		main.java.srcDirs = ['src/main/kotlin']
+		main.kotlin.srcDirs = ['src/main/kotlin']
 	}
 }
 
@@ -29,6 +30,7 @@ dependencies {
 //noinspection GroovyAssignabilityCheck
 task sourcesJar(type: Jar) {
 	from android.sourceSets.main.java.srcDirs
+	from android.sourceSets.main.kotlin.srcDirs
 	classifier = 'sources'
 }
 
