@@ -5,9 +5,9 @@
  */
 package org.frice.utils.data
 
+import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
-import android.support.v7.app.AppCompatActivity
 
 /**
  * insert a value in2 SharedPreference
@@ -36,6 +36,4 @@ fun Context.readBoolean(key: String, default: Boolean = false) = openPreference(
  * @return a SharedPreference
  */
 private fun Context.openPreference(): SharedPreferences =
-		getSharedPreferences("MainPreference", AppCompatActivity.MODE_ENABLE_WRITE_AHEAD_LOGGING)
-
-
+		getSharedPreferences("MainPreference", Activity.MODE_APPEND)

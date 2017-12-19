@@ -2,16 +2,14 @@
 
 package org.frice
 
-import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.PixelFormat
 import android.net.*
 import android.os.Bundle
-import android.os.PersistableBundle
-import android.support.v7.app.AppCompatActivity
-import android.view.SurfaceView
-import android.view.Window
+import android.view.*
+import android.widget.FrameLayout
 import org.frice.event.*
 import org.frice.obj.button.FText
 import org.frice.platform.FriceGame
@@ -29,7 +27,6 @@ import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 import java.net.URL
 import java.util.*
-import kotlin.concurrent.thread
 
 
 /**
@@ -44,8 +41,8 @@ import kotlin.concurrent.thread
  * @author ice1000
  * @since v0.2.3
  */
-@Suppress("LeakingThis")
-open class Game @JvmOverloads constructor(layerCount: Int = 1) : AppCompatActivity(), FriceGame<DroidDrawer> {
+open class Game @JvmOverloads constructor(layerCount: Int = 1) :
+		Activity(), FriceGame<DroidDrawer>, Runnable {
 	private var screenWidth: Int = -1
 	private var screenHeight: Int = -1
 
@@ -65,11 +62,16 @@ open class Game @JvmOverloads constructor(layerCount: Int = 1) : AppCompatActivi
 			field = value
 		}
 
-	override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
-		super.onCreate(savedInstanceState, persistentState)
+	override fun onCreate(savedInstanceState: Bundle?) {
+		super.onCreate(savedInstanceState)
 		requestWindowFeature(Window.FEATURE_NO_TITLE)
 		window.setFormat(PixelFormat.TRANSLUCENT)
 		surfaceView = SurfaceView(this)
+		frameLayout = FrameLayout(this)
+		frameLayout.addView(surfaceView, ViewGroup.LayoutParams(
+				ViewGroup.LayoutParams.MATCH_PARENT,
+				ViewGroup.LayoutParams.MATCH_PARENT))
+		setContentView(frameLayout)
 		surfaceView.setOnClickListener {
 			mouse(OnMouseEvent(it.x.toDouble(), it.y.toDouble(), MOUSE_CLICKED))
 			onMouse(OnMouseEvent(it.x.toDouble(), it.y.toDouble(), MOUSE_CLICKED))
@@ -79,42 +81,36 @@ open class Game @JvmOverloads constructor(layerCount: Int = 1) : AppCompatActivi
 			onMouse(OnMouseEvent(it.x.toDouble(), it.y.toDouble(), MOUSE_PRESSED))
 			return@setOnTouchListener false
 		}
-		setContentView(surfaceView)
 		screenWidth = resources.displayMetrics.widthPixels
 		screenHeight = resources.displayMetrics.heightPixels
 		onInit()
 		FLog.v("height: $screenHeight, width: $screenWidth")
-		thread {
-			onLastInit()
-			loop {
-				try {
-					onRefresh()
-					// only update per "refreshTime"
-					if (!paused && !stopped && refresh.ended() && surfaceView.holder.surface.isValid) {
-						val canvas = surfaceView.holder.lockCanvas()
-						val localDrawer = drawer ?: DroidDrawer(canvas).also { drawer = it }
-						localDrawer.canvas = canvas
-						clearScreen(localDrawer)
-						drawEverything(localDrawer)
+		Thread(this).start()
+	}
 
-//			if (loseFocus and loseFocusChangeColor) {
-//				repeat(localDrawer.canvas.width) { x: Int ->
-//					repeat(localDrawer.canvas.height) { y: Int ->
-//						localDrawer.canvas[x, y] = drawer.friceImage[x, y].darker()
-//					}
-//				}
-//			}
+	override fun run() {
+		onLastInit()
+		loop {
+			try {
+				onRefresh()
+				// only update per "refreshTime"
+				if (!paused && !stopped && refresh.ended() && surfaceView.holder.surface.isValid) {
+					val canvas = surfaceView.holder.lockCanvas()
+					val localDrawer = drawer ?: DroidDrawer(canvas).also { drawer = it }
+					localDrawer.canvas = canvas
+					clearScreen(localDrawer)
+					drawEverything(localDrawer)
+					// if (loseFocus and loseFocusChangeColor) repeat(localDrawer.canvas.width) { x: Int -> repeat(localDrawer.canvas.height) { y: Int -> localDrawer.canvas[x, y] = drawer.friceImage[x, y].darker() } }
 
-						localDrawer.restore()
-						localDrawer.init()
-						localDrawer.color = ColorResource.DARK_GRAY
-						if (showFPS) localDrawer.drawString("fps: ${fpsCounter.display}", 30.0, height - 30.0)
+					localDrawer.restore()
+					localDrawer.init()
+					localDrawer.color = ColorResource.DARK_GRAY
+					if (showFPS) localDrawer.drawString("fps: ${fpsCounter.display}", 30.0, height - 30.0)
 
-						fpsCounter.refresh()
-						surfaceView.holder.unlockCanvasAndPost(canvas)
-					}
-				} catch (ignored: ConcurrentModificationException) {
+					fpsCounter.refresh()
+					surfaceView.holder.unlockCanvasAndPost(canvas)
 				}
+			} catch (ignored: ConcurrentModificationException) {
 			}
 		}
 	}
@@ -163,8 +159,9 @@ open class Game @JvmOverloads constructor(layerCount: Int = 1) : AppCompatActivi
 			refresh.time = value
 		}
 
-	private lateinit var surfaceView: SurfaceView
 	var drawer: DroidDrawer? = null
+	lateinit var frameLayout: FrameLayout
+	lateinit var surfaceView: SurfaceView
 
 	val fpsCounter = FpsCounter()
 
@@ -173,7 +170,7 @@ open class Game @JvmOverloads constructor(layerCount: Int = 1) : AppCompatActivi
 	}
 
 	open fun onExit() {
-		TODO()
+		// TODO()
 	}
 
 	override fun measureText(text: FText): FRectangle {
@@ -190,13 +187,12 @@ open class Game @JvmOverloads constructor(layerCount: Int = 1) : AppCompatActivi
 		get() = (getSystemService(Context.CONNECTIVITY_SERVICE)
 				as ConnectivityManager).activeNetworkInfo
 
-
 	/**
 	 * if this value is null,
 	 * it means I have 2 load data from Sp.
 	 */
 	val isNetConnected: Boolean
-		get() = connection != null && connection!!.isConnected
+		get() = connection?.isConnected ?: false
 
 	/**
 	 * this will cache the data into SharedPreference
@@ -208,8 +204,8 @@ open class Game @JvmOverloads constructor(layerCount: Int = 1) : AppCompatActivi
 	@JvmOverloads
 	fun webResource(
 			url: String,
-			submit: (String) -> Unit,
-			default: String = "DEFAULT_VALUE") {
+			default: String = "DEFAULT_VALUE",
+			submit: (String) -> Unit) {
 		var ret = ""
 		doAsync {
 			ret = readString(default)
