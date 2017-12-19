@@ -5,13 +5,12 @@ package org.frice
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.graphics.Canvas
 import android.graphics.PixelFormat
 import android.net.*
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.support.v7.app.AppCompatActivity
-import android.view.View
+import android.view.SurfaceView
 import android.view.Window
 import org.frice.event.*
 import org.frice.obj.button.FText
@@ -22,12 +21,15 @@ import org.frice.platform.adapter.DroidImage
 import org.frice.resource.graphics.ColorResource
 import org.frice.utils.data.readString
 import org.frice.utils.data.save
+import org.frice.utils.loop
 import org.frice.utils.message.FLog
 import org.frice.utils.shape.FRectangle
 import org.frice.utils.time.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 import java.net.URL
+import java.util.*
+import kotlin.concurrent.thread
 
 
 /**
@@ -67,11 +69,54 @@ open class Game @JvmOverloads constructor(layerCount: Int = 1) : AppCompatActivi
 		super.onCreate(savedInstanceState, persistentState)
 		requestWindowFeature(Window.FEATURE_NO_TITLE)
 		window.setFormat(PixelFormat.TRANSLUCENT)
-		canvas = FriceCanvas()
-		setContentView(canvas)
+		surfaceView = SurfaceView(this)
+		surfaceView.setOnClickListener {
+			mouse(OnMouseEvent(it.x.toDouble(), it.y.toDouble(), MOUSE_CLICKED))
+			onMouse(OnMouseEvent(it.x.toDouble(), it.y.toDouble(), MOUSE_CLICKED))
+		}
+		surfaceView.setOnTouchListener { _, it ->
+			mouse(OnMouseEvent(it.x.toDouble(), it.y.toDouble(), MOUSE_PRESSED))
+			onMouse(OnMouseEvent(it.x.toDouble(), it.y.toDouble(), MOUSE_PRESSED))
+			return@setOnTouchListener false
+		}
+		setContentView(surfaceView)
 		screenWidth = resources.displayMetrics.widthPixels
 		screenHeight = resources.displayMetrics.heightPixels
+		onInit()
 		FLog.v("height: $screenHeight, width: $screenWidth")
+		thread {
+			onLastInit()
+			loop {
+				try {
+					onRefresh()
+					// only update per "refreshTime"
+					if (!paused && !stopped && refresh.ended() && surfaceView.holder.surface.isValid) {
+						val canvas = surfaceView.holder.lockCanvas()
+						val localDrawer = drawer ?: DroidDrawer(canvas).also { drawer = it }
+						localDrawer.canvas = canvas
+						clearScreen(localDrawer)
+						drawEverything(localDrawer)
+
+//			if (loseFocus and loseFocusChangeColor) {
+//				repeat(localDrawer.canvas.width) { x: Int ->
+//					repeat(localDrawer.canvas.height) { y: Int ->
+//						localDrawer.canvas[x, y] = drawer.friceImage[x, y].darker()
+//					}
+//				}
+//			}
+
+						localDrawer.restore()
+						localDrawer.init()
+						localDrawer.color = ColorResource.DARK_GRAY
+						if (showFPS) localDrawer.drawString("fps: ${fpsCounter.display}", 30.0, height - 30.0)
+
+						fpsCounter.refresh()
+						surfaceView.holder.unlockCanvasAndPost(canvas)
+					}
+				} catch (ignored: ConcurrentModificationException) {
+				}
+			}
+		}
 	}
 
 	override fun onDestroy() {
@@ -118,7 +163,7 @@ open class Game @JvmOverloads constructor(layerCount: Int = 1) : AppCompatActivi
 			refresh.time = value
 		}
 
-	private lateinit var canvas: FriceCanvas
+	private lateinit var surfaceView: SurfaceView
 	var drawer: DroidDrawer? = null
 
 	val fpsCounter = FpsCounter()
@@ -181,41 +226,5 @@ open class Game @JvmOverloads constructor(layerCount: Int = 1) : AppCompatActivi
 		}
 	}
 
-	override val screenCut get() = DroidImage(canvas.drawingCache)
-
-	inner class FriceCanvas : View(this) {
-		init {
-			setOnClickListener {
-				mouse(OnMouseEvent(it.x.toDouble(), it.y.toDouble(), MOUSE_CLICKED))
-				onMouse(OnMouseEvent(it.x.toDouble(), it.y.toDouble(), MOUSE_CLICKED))
-			}
-			setOnTouchListener { _, it ->
-				mouse(OnMouseEvent(it.x.toDouble(), it.y.toDouble(), MOUSE_PRESSED))
-				onMouse(OnMouseEvent(it.x.toDouble(), it.y.toDouble(), MOUSE_PRESSED))
-				return@setOnTouchListener false
-			}
-		}
-
-		override fun onDraw(canvas: Canvas) {
-			super.onDraw(canvas)
-			@SuppressLint("DrawAllocation")
-			val localDrawer = drawer ?: DroidDrawer(canvas).also { drawer = it }
-			localDrawer.canvas = canvas
-			clearScreen(localDrawer)
-			drawEverything(localDrawer)
-
-//			if (loseFocus and loseFocusChangeColor) {
-//				repeat(localDrawer.canvas.width) { x: Int ->
-//					repeat(localDrawer.canvas.height) { y: Int ->
-//						localDrawer.canvas[x, y] = drawer.friceImage[x, y].darker()
-//					}
-//				}
-//			}
-
-			localDrawer.restore()
-			localDrawer.init()
-			localDrawer.color = ColorResource.DARK_GRAY
-			if (showFPS) localDrawer.drawString("fps: ${fpsCounter.display}", 30.0, height - 30.0)
-		}
-	}
+	override val screenCut get() = DroidImage(surfaceView.drawingCache)
 }
