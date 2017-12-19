@@ -18,7 +18,7 @@ interface FriceDrawer {
 	fun drawLine(x: Double, y: Double, width: Double, height: Double)
 	fun drawRoundRect(x: Double, y: Double, width: Double, height: Double, arcWidth: Double, arcHeight: Double)
 	fun stringSize(size: Double)
-	fun useFont(text: FText)
+	// fun useFont(text: FText)
 	fun rotate(theta: Double, x: Double, y: Double)
 	fun restore()
 	fun strokeOval(x: Double, y: Double, width: Double, height: Double)

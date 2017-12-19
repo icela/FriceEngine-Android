@@ -1,87 +1,101 @@
 package org.frice.platform.adapter
 
-import android.graphics.Canvas
-import org.frice.obj.button.FText
+import android.graphics.*
 import org.frice.platform.FriceDrawer
 import org.frice.platform.FriceImage
 import org.frice.resource.graphics.ColorResource
 import org.frice.utils.cast
-import org.frice.utils.forceRun
 
 /**
  * Created by ice1000 on 2016/10/31.
  *
  * @author ice1000
  */
-class DroidDrawer(private val canvas: Canvas) : FriceDrawer {
+class DroidDrawer(var canvas: Canvas) : FriceDrawer {
+	constructor(bitmap: Bitmap) : this(Canvas(bitmap))
+
+	val paint = Paint()
 
 	override fun init() {
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
-		forceRun { g.font = Font("Consolas", Font.PLAIN, 16) }
+		canvas.save()
 	}
 
-	val friceImage = DroidImage(canvas.width, canvas.height)
+	private val rectF = RectF()
+
 	override var color: ColorResource
-		get() = ColorResource(g.color)
+		get() = ColorResource(paint.color)
 		set(value) {
-			g.color = value.`get-color`()
+			paint.color = value.color
 		}
 
-	var g: Graphics2D = cast(friceImage.image.graphics)
+	val g = canvas
 
 	override fun stringSize(size: Double) {
-		g.font = g.font.deriveFont(size.toFloat())
+		paint.textSize = size.toFloat()
 	}
 
-	override fun useFont(text: FText) {
-		if (text.fonttmpobj == null) text.fonttmpobj = Font(text.fontName, Font.PLAIN, text.textSize.toInt())
-		if (g.font != text.fonttmpobj)
-			g.font = cast(text.fonttmpobj)
+	override fun drawOval(x: Double, y: Double, width: Double, height: Double) {
+		rectF.set(x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat())
+		paint.style = Paint.Style.FILL
+		g.drawOval(rectF, paint)
 	}
 
-	override fun drawOval(x: Double, y: Double, width: Double, height: Double) =
-		g.fillOval(x.toInt(), y.toInt(), width.toInt(), height.toInt())
+	override fun strokeOval(x: Double, y: Double, width: Double, height: Double) {
+		rectF.set(x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat())
+		paint.style = Paint.Style.STROKE
+		g.drawOval(rectF, paint)
+	}
 
-	override fun strokeOval(x: Double, y: Double, width: Double, height: Double) =
-		g.fillOval(x.toInt(), y.toInt(), width.toInt(), height.toInt())
-
-	override fun drawString(string: String, x: Double, y: Double) =
-		g.drawString(string, x.toInt(), y.toInt())
+	override fun drawString(string: String, x: Double, y: Double) {
+		g.drawText(string, x.toFloat(), y.toFloat(), paint)
+	}
 
 	override fun drawImage(image: FriceImage, x: Double, y: Double) {
-		g.drawImage(cast<DroidImage>(image).image, x.toInt(), y.toInt(), canvas)
+		g.drawBitmap(cast<DroidImage>(image).image, x.toFloat(), y.toFloat(), paint)
 	}
 
-	override fun drawRect(x: Double, y: Double, width: Double, height: Double) =
-		g.fillRect(x.toInt(), y.toInt(), width.toInt(), height.toInt())
+	override fun drawRect(x: Double, y: Double, width: Double, height: Double) {
+		rectF.set(x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat())
+		paint.style = Paint.Style.FILL
+		g.drawRect(rectF, paint)
+	}
 
-	override fun strokeRect(x: Double, y: Double, width: Double, height: Double) =
-		g.drawRect(x.toInt(), y.toInt(), width.toInt(), height.toInt())
+	override fun strokeRect(x: Double, y: Double, width: Double, height: Double) {
+		rectF.set(x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat())
+		paint.style = Paint.Style.STROKE
+		g.drawRect(rectF, paint)
+	}
 
 	override fun drawLine(x: Double, y: Double, width: Double, height: Double) =
-		g.drawLine(x.toInt(), y.toInt(), width.toInt(), height.toInt())
+			g.drawLine(x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat(), paint)
 
-	override fun rotate(theta: Double, x: Double, y: Double) = g.rotate(theta, x, y)
+	override fun rotate(theta: Double, x: Double, y: Double) = g.rotate(theta.toFloat(), x.toFloat(), y.toFloat())
 
 	override fun drawRoundRect(
-		x: Double,
-		y: Double,
-		width: Double,
-		height: Double,
-		arcWidth: Double,
-		arcHeight: Double) =
-		g.fillRoundRect(x.toInt(), y.toInt(), width.toInt(), height.toInt(), arcWidth.toInt(), arcHeight.toInt())
+			x: Double,
+			y: Double,
+			width: Double,
+			height: Double,
+			arcWidth: Double,
+			arcHeight: Double) {
+		rectF.set(x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat())
+		paint.style = Paint.Style.FILL
+		g.drawRoundRect(rectF, arcWidth.toFloat(), arcHeight.toFloat(), paint)
+	}
 
 	override fun strokeRoundRect(
-		x: Double,
-		y: Double,
-		width: Double,
-		height: Double,
-		arcWidth: Double,
-		arcHeight: Double) =
-		g.drawRoundRect(x.toInt(), y.toInt(), width.toInt(), height.toInt(), arcWidth.toInt(), arcHeight.toInt())
+			x: Double,
+			y: Double,
+			width: Double,
+			height: Double,
+			arcWidth: Double,
+			arcHeight: Double) {
+		rectF.set(x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat())
+		paint.style = Paint.Style.STROKE
+		g.drawRoundRect(rectF, arcWidth.toFloat(), arcHeight.toFloat(), paint)
+	}
 
 	override fun restore() {
-		g = cast(friceImage.image.graphics)
+		canvas.restore()
 	}
 }

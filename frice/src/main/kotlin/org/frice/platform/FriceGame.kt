@@ -4,13 +4,10 @@ import org.frice.event.OnMouseEvent
 import org.frice.obj.*
 import org.frice.obj.button.*
 import org.frice.obj.effects.LineEffect
-import org.frice.obj.sub.ImageObject
 import org.frice.obj.sub.ShapeObject
 import org.frice.platform.adapter.DroidImage
-import org.frice.platform.owners.Resizable
 import org.frice.platform.owners.Sized
 import org.frice.resource.graphics.ColorResource
-import org.frice.resource.image.ImageResource
 import org.frice.utils.shape.*
 
 /**
@@ -18,10 +15,9 @@ import org.frice.utils.shape.*
  * @since v1.2
  * @param Drawer the FriceDrawer used
  */
-interface FriceGame<Drawer : FriceDrawer>
-	: Sized, Resizable, Collidable {
+interface FriceGame<in Drawer : FriceDrawer>
+	: Sized, Collidable {
 	val layers: Array<Layer>
-	val drawer: Drawer
 
 	override val box
 		get() = object : FShapeQuad {
@@ -47,8 +43,6 @@ interface FriceGame<Drawer : FriceDrawer>
 	var loseFocusChangeColor: Boolean
 	var millisToRefresh: Int
 	var paused: Boolean
-	var isFullScreen: Boolean
-	var isAlwaysTop: Boolean
 
 	/** do the delete and add work, to prevent Exceptions */
 	fun processBuffer() = layers.forEach(Layer::processBuffer)
@@ -116,7 +110,7 @@ interface FriceGame<Drawer : FriceDrawer>
 	/** remove objects unsafely using vararg */
 	fun instantRemoveObject(vararg objs: AbstractObject) = instantRemoveObject(0, *objs)
 
-	fun clearScreen() {
+	fun clearScreen(drawer: Drawer) {
 		drawer.color = ColorResource.WHITE
 		drawer.drawRect(0.0, 0.0, width.toDouble(), height.toDouble())
 		drawer.restore()
@@ -174,7 +168,6 @@ interface FriceGame<Drawer : FriceDrawer>
 					restore()
 					init()
 					// TODO rotate(b.rotate)
-					useFont(b)
 				}
 				if (b is FButton) {
 					when (b) {
@@ -199,11 +192,6 @@ interface FriceGame<Drawer : FriceDrawer>
 		}
 		customDraw(bgg)
 	}
-
-	fun setCursor(o: FriceImage)
-
-	fun setCursor(o: ImageObject) = setCursor(o.image)
-	fun setCursor(o: ImageResource) = setCursor(o.image)
 
 	/**
 	 * get a screenShot.

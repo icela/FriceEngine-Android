@@ -13,22 +13,9 @@ import org.frice.resource.graphics.ColorResource.Companion.DARK_GRAY
 abstract class FText : AbstractObject {
 	open var text = ""
 	open var textSize: Double = 16.0
-		set(value) {
-			field = value
-			fonttmpobj = null
-		}
-
-	open var fontName = "Consolas"
-		set(value) {
-			field = value
-			fonttmpobj = null
-		}
 
 	override var rotate = 0.0
 	abstract val color: ColorResource
-
-	@Suppress("PropertyName")
-	@JvmField internal var fonttmpobj: Any? = null
 }
 
 /**

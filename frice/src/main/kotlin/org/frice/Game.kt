@@ -2,18 +2,31 @@
 
 package org.frice
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
+import android.graphics.Canvas
+import android.net.*
+import android.os.Bundle
+import android.os.PersistableBundle
 import android.support.v7.app.AppCompatActivity
+import android.view.View
 import org.frice.event.*
 import org.frice.obj.button.FText
-import org.frice.platform.*
+import org.frice.platform.FriceGame
+import org.frice.platform.Layer
 import org.frice.platform.adapter.DroidDrawer
 import org.frice.platform.adapter.DroidImage
 import org.frice.resource.graphics.ColorResource
-import org.frice.utils.cast
-import org.frice.utils.message.*
+import org.frice.utils.data.readString
+import org.frice.utils.data.save
+import org.frice.utils.message.FLog
 import org.frice.utils.shape.FRectangle
 import org.frice.utils.time.*
-import java.util.function.Consumer
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
+import java.net.URL
+
 
 /**
  * The base game class using Swing as renderer.
@@ -29,6 +42,12 @@ import java.util.function.Consumer
  */
 @Suppress("LeakingThis")
 open class Game @JvmOverloads constructor(layerCount: Int = 1) : AppCompatActivity(), FriceGame<DroidDrawer> {
+	private var screenWidth: Int = -1
+	private var screenHeight: Int = -1
+
+	override fun getHeight() = screenHeight
+	override fun getWidth() = screenWidth
+
 	override val layers = Array(layerCount) { Layer() }
 	override var paused = false
 		set(value) {
@@ -42,14 +61,41 @@ open class Game @JvmOverloads constructor(layerCount: Int = 1) : AppCompatActivi
 			field = value
 		}
 
+	override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
+		super.onCreate(savedInstanceState, persistentState)
+		setContentView(canvas)
+		screenWidth = resources.displayMetrics.widthPixels
+		screenHeight = resources.displayMetrics.heightPixels
+		FLog.v("height: $screenHeight, width: $screenWidth")
+	}
+
+	override fun onDestroy() {
+		onExit()
+		super.onDestroy()
+	}
+
+	override fun onPause() {
+		super.onPause()
+		loseFocus = true
+		FClock.pause()
+		onLoseFocus()
+	}
+
+	override fun onResume() {
+		super.onResume()
+		loseFocus = false
+		FClock.resume()
+		onFocus()
+	}
+
 	override fun dialogConfirmYesNo(msg: String, title: String) =
-			JOptionPane.showConfirmDialog(this, msg, title, YES_NO_OPTION) == YES_OPTION
+			TODO() // JOptionPane.showConfirmDialog(this, msg, title, YES_NO_OPTION) == YES_OPTION
 
 	override fun dialogShow(msg: String, title: String) =
-			JOptionPane.showMessageDialog(this, msg, title, OK_OPTION)
+			TODO() // JOptionPane.showMessageDialog(this, msg, title, OK_OPTION)
 
 	override fun dialogInput(msg: String, title: String): String =
-			JOptionPane.showInputDialog(this, msg, title)
+			TODO() // JOptionPane.showInputDialog(this, msg, title)
 
 	override var debug = true
 	override var autoGC = true
@@ -59,18 +105,6 @@ open class Game @JvmOverloads constructor(layerCount: Int = 1) : AppCompatActivi
 
 	override var loseFocusChangeColor = true
 
-	override var isFullScreen: Boolean
-		get() = false
-		set(value) {
-			throw UnsupportedOperationException()
-		}
-
-	override var isAlwaysTop: Boolean
-		get() = false
-		set(value) {
-			throw UnsupportedOperationException()
-		}
-
 	@get:JvmName(" refresh")
 	internal val refresh = FTimer(4)
 	override var millisToRefresh: Int
@@ -79,152 +113,104 @@ open class Game @JvmOverloads constructor(layerCount: Int = 1) : AppCompatActivi
 			refresh.time = value
 		}
 
-	internal val panel: SwingGamePanel = SwingGamePanel()
-
-	override val drawer: DroidDrawer
+	private val canvas = FriceCanvas()
+	var drawer: DroidDrawer? = null
 
 	val fpsCounter = FpsCounter()
 
 	init {
-		isResizable = false
 		onInit()
-		drawer = DroidDrawer(this).apply(JvmDrawer::init)
-		isVisible = true
-		FLog.v("If the window doesn't appear, please call `launch(YourGameClass.class)` instead of the constructor.")
 	}
 
 	open fun onExit() {
-		if (dialogConfirmYesNo("Are you sure to exit?")) {
-			dispose()
-			System.exit(0)
-		}
+		TODO()
 	}
 
 	override fun measureText(text: FText): FRectangle {
-		drawer.useFont(text)
-		val g = drawer.g
-		val font = text.fonttmpobj as? Font ?: g.font
-		return FRectangle(font.getStringBounds(text.text, g.fontRenderContext))
+		TODO()
 	}
 
 	override fun measureTextWidth(text: FText): Int {
-		drawer.useFont(text)
-		val g = drawer.g
-		val font = text.fonttmpobj as? Font ?: g.font
-		return g.getFontMetrics(font).stringWidth(text.text)
+		TODO()
 	}
 
+	fun Game.openWeb(url: String) = startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+
+	private val Game.connection: NetworkInfo?
+		get() = (getSystemService(Context.CONNECTIVITY_SERVICE)
+				as ConnectivityManager).activeNetworkInfo
+
+
 	/**
-	 * add keyboard listeners with lambda
+	 * if this value is null,
+	 * it means I have 2 load data from Sp.
 	 */
-	fun addKeyListener(
-			typed: Consumer<KeyEvent>? = null,
-			pressed: Consumer<KeyEvent>? = null,
-			released: Consumer<KeyEvent>? = null) {
-		addKeyListener(object : KeyListener {
-			override fun keyPressed(e: KeyEvent) {
-				pressed?.accept(e)
-			}
-
-			override fun keyReleased(e: KeyEvent) {
-				released?.accept(e)
-			}
-
-			override fun keyTyped(e: KeyEvent) {
-				typed?.accept(e)
-			}
-		})
-	}
-
-	override val screenCut get() = drawer.friceImage
-
-	fun addKeyTypedEvent(keyCode: Int, key: Consumer<KeyEvent>)
-			= addKeyListener(typed = Consumer { e -> if (e.keyCode == keyCode) key.accept(e) })
-
-	fun addKeyPressedEvent(keyCode: Int, key: Consumer<KeyEvent>)
-			= addKeyListener(pressed = Consumer { e -> if (e.keyCode == keyCode) key.accept(e) })
-
-	fun addKeyReleasedEvent(keyCode: Int, key: Consumer<KeyEvent>)
-			= addKeyListener(released = Consumer { e -> if (e.keyCode == keyCode) key.accept(e) })
-
-	override fun setCursor(o: FriceImage) {
-		cursor = toolkit.createCustomCursor(cast<DroidImage>(o).image, Point(0, 0), "cursor")
-	}
+	val isNetConnected: Boolean
+		get() = connection != null && connection!!.isConnected
 
 	/**
-	 * all rendering work and game object calculating are here.
+	 * this will cache the data into SharedPreference
+	 * next time when the network is invalid, it will return the data
+	 * stored in the SharedPreference.
 	 *
-	 * Created by ice1000 on 2016/8/13.
-	 * @author ice1000
-	 * @since v0.1
+	 * this method extended String.
 	 */
-	inner class SwingGamePanel : JComponent() {
-
-		init {
-			addMouseListener(object : MouseListener {
-				override fun mouseClicked(e: MouseEvent) {
-					mouse(swingMouse(e, MOUSE_CLICKED))
-					onMouse(swingMouse(e, MOUSE_CLICKED))
-				}
-
-				override fun mouseEntered(e: MouseEvent) = onMouse(swingMouse(e, MOUSE_ENTERED))
-				override fun mouseExited(e: MouseEvent) = onMouse(swingMouse(e, MOUSE_EXITED))
-				override fun mouseReleased(e: MouseEvent) {
-					mouse(swingMouse(e, MOUSE_RELEASED))
-					onMouse(swingMouse(e, MOUSE_RELEASED))
-				}
-
-				override fun mousePressed(e: MouseEvent) {
-					mouse(swingMouse(e, MOUSE_PRESSED))
-					onMouse(swingMouse(e, MOUSE_PRESSED))
-				}
-			})
-
-			addWindowListener(object : WindowListener {
-				override fun windowDeiconified(e: WindowEvent) = Unit
-				override fun windowActivated(e: WindowEvent) {
-					loseFocus = false
-					FClock.resume()
-					onFocus()
-				}
-
-				override fun windowDeactivated(e: WindowEvent) {
-					loseFocus = true
-					FClock.pause()
-					onLoseFocus()
-				}
-
-				override fun windowIconified(e: WindowEvent) = Unit
-				override fun windowClosing(e: WindowEvent) = onExit()
-				override fun windowClosed(e: WindowEvent) = Unit
-				override fun windowOpened(e: WindowEvent) = Unit
-			})
+	@JvmOverloads
+	fun webResource(
+			url: String,
+			submit: (String) -> Unit,
+			default: String = "DEFAULT_VALUE") {
+		var ret = ""
+		doAsync {
+			ret = readString(default)
+			uiThread { submit(ret) }
 		}
-
-		override fun update(g: Graphics?) = paint(g)
-		override fun paintComponent(g: Graphics) {
-			clearScreen()
-			drawEverything(drawer)
-
-			if (loseFocus and loseFocusChangeColor) {
-				repeat(drawer.friceImage.width) { x: Int ->
-					repeat(drawer.friceImage.height) { y: Int ->
-						drawer.friceImage[x, y] = drawer.friceImage[x, y].darker()
-					}
-				}
+		doAsync {
+			if (ret != "DEFAULT_VALUE" && !isNetConnected) {
+				uiThread { submit(ret) }
+			} else {
+				ret = URL(url).readText(Charsets.UTF_8)
+				uiThread { submit(ret) }
+				save(url, ret)
 			}
-
-			drawer.restore()
-			drawer.init()
-			drawer.color = ColorResource.DARK_GRAY
-			if (showFPS) drawer.drawString("fps: ${fpsCounter.display}", 30.0, height - 30.0)
-
-			/*
-			 * 厚颜无耻
-			 * drawer.drawString("Powered by FriceEngine. ice1000", 5, 20)
-			 */
-			g.drawImage(drawer.friceImage.image, 0, 0, this)
 		}
 	}
 
+	override val screenCut get() = DroidImage(canvas.drawingCache)
+
+	inner class FriceCanvas : View(this) {
+		init {
+			setOnClickListener {
+				mouse(OnMouseEvent(it.x.toDouble(), it.y.toDouble(), MOUSE_CLICKED))
+				onMouse(OnMouseEvent(it.x.toDouble(), it.y.toDouble(), MOUSE_CLICKED))
+			}
+			setOnTouchListener { _, it ->
+				mouse(OnMouseEvent(it.x.toDouble(), it.y.toDouble(), MOUSE_PRESSED))
+				onMouse(OnMouseEvent(it.x.toDouble(), it.y.toDouble(), MOUSE_PRESSED))
+				return@setOnTouchListener false
+			}
+		}
+
+		override fun onDraw(canvas: Canvas) {
+			super.onDraw(canvas)
+			@SuppressLint("DrawAllocation")
+			val localDrawer = drawer ?: DroidDrawer(canvas).also { drawer = it }
+			localDrawer.canvas = canvas
+			clearScreen(localDrawer)
+			drawEverything(localDrawer)
+
+//			if (loseFocus and loseFocusChangeColor) {
+//				repeat(localDrawer.canvas.width) { x: Int ->
+//					repeat(localDrawer.canvas.height) { y: Int ->
+//						localDrawer.canvas[x, y] = drawer.friceImage[x, y].darker()
+//					}
+//				}
+//			}
+
+			localDrawer.restore()
+			localDrawer.init()
+			localDrawer.color = ColorResource.DARK_GRAY
+			if (showFPS) localDrawer.drawString("fps: ${fpsCounter.display}", 30.0, height - 30.0)
+		}
+	}
 }
