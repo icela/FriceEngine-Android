@@ -1,9 +1,9 @@
 package org.ice1000
 
-import org.frice.android.Game
-import org.frice.android.resource.graphics.ColorResource
-import org.frice.android.utils.graphics.shape.FCircle
-import org.frice.game.obj.sub.ShapeObject
+import org.frice.Game
+import org.frice.obj.sub.ShapeObject
+import org.frice.resource.graphics.ColorResource
+import org.frice.utils.shape.FCircle
 
 class MainActivity : Game() {
 	override fun onInit() {
