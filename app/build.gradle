@@ -9,7 +9,7 @@ android {
 		minSdkVersion 16
 		targetSdkVersion 27
 		versionCode 1
-		versionName "1.0"
+		versionName '1.0'
 	}
 	buildTypes {
 		release {
@@ -27,7 +27,7 @@ dependencies {
 	compile 'com.android.support:appcompat-v7:27.0.2'
 	compile "org.jetbrains.anko:anko-common:$anko_version"
 	compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-	compile project(":frice")
+	compile project(':frice')
 	testCompile 'junit:junit:4.12'
 }
 
