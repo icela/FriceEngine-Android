@@ -24,13 +24,10 @@ android {
 
 dependencies {
 	compile fileTree(dir: 'libs', include: ['*.jar'])
-	compile 'com.android.support:appcompat-v7:27.0.0'
+	compile 'com.android.support:appcompat-v7:27.0.2'
 	compile "org.jetbrains.anko:anko-common:$anko_version"
 	compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 	compile project(":frice")
 	testCompile 'junit:junit:4.12'
 }
 
-repositories {
-	mavenCentral()
-}
